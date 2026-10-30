@@ -6,6 +6,7 @@ import { deleteItemAction, saveItemAction } from "@/app/actions";
 import type { Item } from "@/lib/items";
 import { idle } from "@/lib/result-types";
 import { STATUS_LABEL } from "./status-select";
+import { Spinner } from "./spinner";
 
 export function EditItemForm({ item }: { item: Item }) {
   const [state, action, pending] = useActionState(saveItemAction.bind(null, item.id), idle);
@@ -57,8 +58,14 @@ export function EditItemForm({ item }: { item: Item }) {
         </Field>
         {state.error && <p className="text-sm text-red-600">{state.error}</p>}
         <div className="flex justify-end">
-          <button type="submit" disabled={pending} className="btn-primary">
-            {pending ? "Saving…" : "Save"}
+          <button type="submit" disabled={pending} aria-busy={pending} className="btn-primary">
+            {pending ? (
+            <>
+              <Spinner /> Saving…
+            </>
+          ) : (
+            "Save"
+          )}
           </button>
         </div>
       </form>

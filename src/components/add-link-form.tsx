@@ -4,6 +4,7 @@ import { Plus } from "lucide-react";
 import { useActionState, useState } from "react";
 import { addLinkAction } from "@/app/actions";
 import { idle, type ActionResult } from "@/lib/result-types";
+import { Spinner } from "./spinner";
 
 export function AddLinkForm() {
   const [suggested, setSuggested] = useState("");
@@ -37,8 +38,8 @@ export function AddLinkForm() {
           onPaste={(e) => lookup(e.clipboardData.getData("text"))}
           onFocus={() => setOpen(true)}
         />
-        <button type="submit" disabled={pending} className="btn-primary shrink-0">
-          <Plus size={16} aria-hidden />
+        <button type="submit" disabled={pending} aria-busy={pending} className="btn-primary shrink-0">
+          {pending ? <Spinner size={16} /> : <Plus size={16} aria-hidden />}
           <span className="hidden sm:inline">{pending ? "Saving…" : "Add"}</span>
           <span className="sr-only sm:hidden">Add</span>
         </button>

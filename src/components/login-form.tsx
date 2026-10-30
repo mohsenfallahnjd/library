@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { loginAction } from "@/app/login/actions";
 import { idle } from "@/lib/result-types";
+import { Spinner } from "./spinner";
 
 export function LoginForm({ next }: { next: string }) {
   const [state, action, pending] = useActionState(loginAction, idle);
@@ -22,8 +23,14 @@ export function LoginForm({ next }: { next: string }) {
         className="input"
       />
       {state.error && <p className="text-sm text-red-600">{state.error}</p>}
-      <button type="submit" disabled={pending} className="btn-primary w-full py-2.5">
-        {pending ? "Signing in…" : "Sign in"}
+      <button type="submit" disabled={pending} aria-busy={pending} className="btn-primary w-full py-2.5">
+        {pending ? (
+            <>
+              <Spinner /> Signing in…
+            </>
+          ) : (
+            "Sign in"
+          )}
       </button>
     </form>
   );

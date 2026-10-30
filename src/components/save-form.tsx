@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useActionState } from "react";
 import { addLinkAction } from "@/app/actions";
 import { idle } from "@/lib/result-types";
+import { Spinner } from "./spinner";
 
 export function SaveForm({ url, title }: { url: string; title: string }) {
   const [state, action, pending] = useActionState(addLinkAction, idle);
@@ -38,8 +39,14 @@ export function SaveForm({ url, title }: { url: string; title: string }) {
         <input name="tags" placeholder="tags" aria-label="Tags" className="input" />
       </div>
       {state.error && <p className="text-sm text-red-600">{state.error}</p>}
-      <button type="submit" disabled={pending} autoFocus className="btn-primary w-full py-3">
-        {pending ? "Saving…" : "Save"}
+      <button type="submit" disabled={pending} aria-busy={pending} autoFocus className="btn-primary w-full py-3">
+        {pending ? (
+          <>
+            <Spinner /> Saving…
+          </>
+        ) : (
+          "Save"
+        )}
       </button>
     </form>
   );

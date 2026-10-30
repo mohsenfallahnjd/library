@@ -4,6 +4,7 @@ import { Check, Plus } from "lucide-react";
 import { useState, useTransition } from "react";
 import { saveSuggestionAction } from "@/app/actions";
 import type { SourceId } from "@/lib/discover";
+import { Spinner } from "./spinner";
 
 export function SaveSuggestionButton(props: { url: string; title: string; source: SourceId; saved: boolean }) {
   const [saved, setSaved] = useState(props.saved);
@@ -21,6 +22,7 @@ export function SaveSuggestionButton(props: { url: string; title: string; source
     <button
       type="button"
       disabled={pending}
+      aria-busy={pending}
       onClick={() =>
         start(async () => {
           const result = await saveSuggestionAction({ url: props.url, title: props.title, source: props.source });
@@ -31,7 +33,7 @@ export function SaveSuggestionButton(props: { url: string; title: string; source
       className="btn-ghost shrink-0 px-2 py-1 text-xs"
       title={error ? "Could not save, try again" : "Save to library"}
     >
-      <Plus size={14} /> {pending ? "…" : error ? "Retry" : "Save"}
+      {pending ? <Spinner /> : <Plus size={14} />} {pending ? "Saving" : error ? "Retry" : "Save"}
     </button>
   );
 }

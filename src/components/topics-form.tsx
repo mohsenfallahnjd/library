@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { saveTopicsAction } from "@/app/actions";
 import { idle } from "@/lib/result-types";
+import { Spinner } from "./spinner";
 
 export function TopicsForm({ topics }: { topics: string[] }) {
   const [state, action, pending] = useActionState(saveTopicsAction, idle);
@@ -10,8 +11,14 @@ export function TopicsForm({ topics }: { topics: string[] }) {
     <form action={action} className="space-y-2">
       <textarea name="topics" defaultValue={topics.join(", ")} rows={3} aria-label="Stack topics" className="input font-mono" />
       <div className="flex items-center gap-3">
-        <button type="submit" disabled={pending} className="btn-primary">
-          {pending ? "Saving…" : "Save topics"}
+        <button type="submit" disabled={pending} aria-busy={pending} className="btn-primary">
+          {pending ? (
+            <>
+              <Spinner /> Saving…
+            </>
+          ) : (
+            "Save topics"
+          )}
         </button>
         {state.message && <span className="text-sm text-ok">{state.message}</span>}
         {state.error && <span className="text-sm text-red-600">{state.error}</span>}
