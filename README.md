@@ -1,14 +1,17 @@
 # Library
 
 A personal tech reading library: PDF books, articles and sites in one place,
-readable on Mac and phone. It also suggests fresh articles from Hacker News,
-Lobsters and dev.to that match your stack.
+readable on Mac and phone. The home page is a live feed of tech articles for
+your stack.
 
 - **Library**: paste a URL and the title is fetched for you. Items get a status
   (to read → reading → done), tags, notes and filters by kind, status, tag and title.
 - **Books**: upload a PDF, read it in the app (PDF.js), and it opens where you stopped.
-- **Discover**: recent posts that mention your stack topics, ranked by relevance,
-  score and freshness. One click saves a post to the library.
+- **Feed** (home page): recent posts from Hacker News, Lobsters, dev.to and the
+  TLDR Web Dev / Tech newsletters that mention your stack topics, plus every new
+  post on the Next.js and Vercel blogs. Ranked by relevance, votes and freshness,
+  refreshed every few minutes. One click saves a post to the library.
+- **Library** (`/library`): everything you saved.
 - **Phone**: installable PWA, a bookmarklet, an Android share target and an iOS Shortcut.
 - **Single user**: one password, signed httpOnly cookie.
 
@@ -58,7 +61,7 @@ bun run dev                 # http://localhost:3000
   URL normalisation, de-duplication, auto-tagging and file clean-up all live
   here. Pages and routes never import Drizzle.
 - `src/lib/title.ts`: fetches `og:title` / `twitter:title` / `<title>`.
-- `src/lib/discover.ts`: Hacker News, Lobsters and dev.to sources plus ranking.
+- `src/lib/discover.ts`: feed sources (HN, Lobsters, dev.to, TLDR, Next.js and Vercel blogs) plus ranking.
 - `src/lib/storage.ts`: PDF storage (Vercel Blob or `./uploads`).
 - `src/lib/session.ts`, `src/proxy.ts`: auth. (Next 16 renamed `middleware.ts` to `proxy.ts`.)
 

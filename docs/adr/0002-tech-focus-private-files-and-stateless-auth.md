@@ -14,11 +14,14 @@ decision in ADR 0001 stays readable.
 
 ### 1. A tech library with Discover, not a general book reader
 
-The library is for tech reading. On top of the item list there is a
-**Discover** page (`src/lib/discover.ts`) that pulls recent stories from
-Hacker News (Algolia API), Lobsters and dev.to, keeps only those that match
+The library is for tech reading. The home page is a live **feed**
+(`src/lib/discover.ts`) that pulls recent stories from Hacker News (Algolia
+API), Lobsters, dev.to and the TLDR Web Dev and Tech newsletters (articles
+parsed out of each daily issue, sponsors skipped), keeps only those that match
 the user's **stack topics**, and ranks them by topic matches, score, comments
-and age. Results are cached for an hour with `"use cache"`.
+and age. Posts on the official Next.js and Vercel blogs are always included for
+30 days. Results are cached for a few minutes with `"use cache"` and the page
+refreshes itself while open. The saved items moved to `/library`.
 
 The stack topics (Next.js, React, TypeScript, Postgres, Drizzle, Bun, …) are
 stored in a small `settings` table and are editable in Settings. They are also

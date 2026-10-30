@@ -20,7 +20,7 @@ export default function FeedPage({ searchParams }: PageProps<"/">) {
       <div>
         <h1 className="text-lg font-semibold tracking-tight">Today in your stack</h1>
         <p className="text-sm text-muted">
-          Hacker News, Lobsters and dev.to, filtered to your topics.{" "}
+          Hacker News, Lobsters, dev.to and TLDR filtered to your topics, plus the Next.js and Vercel blogs.{" "}
           <Link href="/settings#stack" className="underline decoration-line underline-offset-2 hover:text-ink">
             Edit topics
           </Link>
@@ -127,14 +127,16 @@ async function Feed({ searchParams }: { searchParams: PageProps<"/">["searchPara
                 <a href={s.url} target="_blank" rel="noreferrer" className="line-clamp-2 font-medium leading-snug hover:text-accent">
                   {s.title}
                 </a>
-                <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted">
-                  <span className={clsx("font-mono", s.source === "hn" && "text-accent")}>{SOURCE_LABEL[s.source]}</span>
-                  <span className="font-mono tabular-nums">▲ {s.score}</span>
+                {s.summary && <p className="mt-1 line-clamp-2 text-sm text-muted">{s.summary}</p>}
+                <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted">
+                  <span className={clsx("font-mono font-medium", SOURCE_STYLE[s.source])}>{SOURCE_LABEL[s.source]}</span>
+                  {s.score > 0 && <span className="font-mono tabular-nums">▲ {s.score}</span>}
                   {s.discussionUrl && s.discussionUrl !== s.url && (
                     <a href={s.discussionUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1 hover:text-ink">
-                      <MessageSquare size={12} /> {s.comments}
+                      <MessageSquare size={12} /> {s.source === "tldr" ? "issue" : s.comments}
                     </a>
                   )}
+                  {s.readMinutes && <span className="font-mono">{s.readMinutes} min</span>}
                   <span className="font-mono">{host(s.url)}</span>
                   <span>{ago(s.createdAt)}</span>
                   {s.topics.map((t) => (
@@ -152,6 +154,15 @@ async function Feed({ searchParams }: { searchParams: PageProps<"/">["searchPara
     </div>
   );
 }
+
+const SOURCE_STYLE: Record<SourceId, string> = {
+  hn: "text-[#ff6600]",
+  lobsters: "text-[#ac130d] dark:text-[#e0605a]",
+  devto: "text-ink",
+  tldr: "text-info",
+  nextjs: "text-ink",
+  vercel: "text-ink",
+};
 
 function host(url: string) {
   return new URL(url).hostname.replace(/^www\./, "");

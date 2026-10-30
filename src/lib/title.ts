@@ -131,7 +131,7 @@ const ENTITIES: Record<string, string> = {
   middot: "·",
 };
 
-function decodeEntities(s: string) {
+export function decodeEntities(s: string) {
   return s.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (m, code: string) => {
     if (code[0] === "#") {
       const n = code[1].toLowerCase() === "x" ? parseInt(code.slice(2), 16) : Number(code.slice(1));
