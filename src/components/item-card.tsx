@@ -1,5 +1,6 @@
 import { BookOpen, Globe, Newspaper } from "lucide-react";
 import Link from "next/link";
+import { SOURCE_LABEL, type SourceId } from "@/lib/discover";
 import type { Item } from "@/lib/items";
 
 const KIND_ICON = { book: BookOpen, article: Newspaper, site: Globe } as const;
@@ -37,7 +38,9 @@ export function ItemCard({ item, children }: { item: Item; children?: React.Reac
           <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted">
             {host(item.url) && <span className="font-mono">{host(item.url)}</span>}
             {item.author && <span>{item.author}</span>}
-            {item.source === "hn" && <span className="font-mono text-accent">via HN</span>}
+            {item.source && item.source in SOURCE_LABEL && (
+              <span className="font-mono text-accent">via {SOURCE_LABEL[item.source as SourceId]}</span>
+            )}
             {item.tags.map((t) => (
               <Link key={t} href={`/?tag=${encodeURIComponent(t)}`} className="chip hover:border-accent hover:text-accent">
                 #{t}

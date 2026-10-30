@@ -37,6 +37,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               <span className="text-accent">~/</span>library
             </Link>
             <div className="ml-auto flex items-center gap-4 text-muted">
+              <Link href="/discover" className="hover:text-ink">
+                Discover
+              </Link>
               <Link href="/settings" className="hover:text-ink">
                 Settings
               </Link>

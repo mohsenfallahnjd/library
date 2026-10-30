@@ -3,7 +3,9 @@
 import { refresh } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireSession } from "@/lib/auth";
+import type { SourceId } from "@/lib/discover";
 import { addItem, deleteItem, updateItem, type Status } from "@/lib/items";
+import { setStackTopics } from "@/lib/stack";
 import { toResult, type ActionResult } from "@/lib/result";
 
 const text = (form: FormData, key: string) => String(form.get(key) ?? "");
@@ -72,4 +74,22 @@ export async function deleteItemAction(id: string): Promise<void> {
   await requireSession();
   await deleteItem(id);
   redirect("/");
+}
+
+export async function saveSuggestionAction(input: { url: string; title: string; source: SourceId }): Promise<ActionResult> {
+  await requireSession();
+  try {
+    const { item, created } = await addItem({ kind: "article", ...input });
+    return { ok: true, id: item.id, message: created ? "Saved" : "Already saved" };
+  } catch (err) {
+    return toResult(err);
+  }
+}
+
+export async function saveTopicsAction(_: ActionResult, form: FormData): Promise<ActionResult> {
+  await requireSession();
+  const topics = await setStackTopics(text(form, "topics")).catch(() => null);
+  if (!topics) return { error: "Up to 40 topics, 40 characters each" };
+  refresh();
+  return { ok: true, message: `Saved ${topics.length} topics` };
 }

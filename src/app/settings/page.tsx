@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Bookmarklet } from "@/components/bookmarklet";
+import { TopicsForm } from "@/components/topics-form";
+import { getStackTopics } from "@/lib/stack";
 import { logoutAction } from "../login/actions";
 
 export const metadata: Metadata = { title: "Settings" };
@@ -7,6 +10,16 @@ export const metadata: Metadata = { title: "Settings" };
 export default function SettingsPage() {
   return (
     <div className="space-y-6">
+      <section id="stack" className="space-y-2">
+        <h2 className="font-semibold">Your stack</h2>
+        <p className="text-sm text-muted">
+          Topics used to pick Discover suggestions and to auto-tag new items. Comma separated.
+        </p>
+        <Suspense fallback={<div className="h-24 animate-pulse rounded-lg border border-line bg-surface" />}>
+          <Topics />
+        </Suspense>
+      </section>
+
       <section className="space-y-2">
         <h2 className="font-semibold">Quick save</h2>
         <p className="text-sm text-muted">
@@ -39,4 +52,8 @@ export default function SettingsPage() {
       </form>
     </div>
   );
+}
+
+async function Topics() {
+  return <TopicsForm topics={await getStackTopics()} />;
 }

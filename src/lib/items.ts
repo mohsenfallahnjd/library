@@ -6,6 +6,7 @@ import { isValidKey } from "./file-key";
 import { getStackTopics } from "./stack";
 import { removeFile } from "./storage";
 import { fetchTitle, hostnameOf, parseHttpUrl, type PageInfo } from "./title";
+import { normalizeUrl } from "./url";
 import { matchTopics } from "./topics";
 
 /**
@@ -14,6 +15,8 @@ import { matchTopics } from "./topics";
  * clean-up — lives behind these few functions. Pages and routes never touch
  * Drizzle; they call the bound functions exported at the bottom.
  */
+
+export { normalizeUrl };
 
 export const KINDS = ["book", "article", "site"] as const;
 export const STATUSES = ["to-read", "reading", "done"] as const;
@@ -124,17 +127,6 @@ export const filterSchema = z.object({
   q: z.string().trim().max(200).optional().catch(undefined),
 });
 export type ItemFilter = z.input<typeof filterSchema>;
-
-/** Strips tracking params and fragments so the same article isn't saved twice. */
-export function normalizeUrl(raw: string) {
-  const url = parseHttpUrl(raw);
-  if (!url) return raw.trim();
-  url.hash = "";
-  for (const key of [...url.searchParams.keys()]) {
-    if (/^(utm_|fbclid$|gclid$|mc_|ref$|ref_src$|source$)/i.test(key)) url.searchParams.delete(key);
-  }
-  return url.toString();
-}
 
 // ---------- the module ----------
 
