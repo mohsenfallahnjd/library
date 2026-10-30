@@ -1,10 +1,7 @@
-import { Pencil } from "lucide-react";
-import Link from "next/link";
 import { Suspense } from "react";
 import { AddPanel } from "@/components/add-panel";
 import { FilterBar } from "@/components/filter-bar";
 import { ItemCard } from "@/components/item-card";
-import { StatusSelect } from "@/components/status-select";
 import { filterSchema, listItems, listTags } from "@/lib/items";
 import { usesBlob } from "@/lib/storage";
 
@@ -39,19 +36,9 @@ async function Library({ searchParams }: { searchParams: PageProps<"/">["searchP
           {filtered ? "No items match these filters." : "Nothing here yet. Paste a link above."}
         </p>
       ) : (
-        <ul className="space-y-2">
+        <ul className="space-y-2.5">
           {items.map((item) => (
-            <ItemCard key={item.id} item={item}>
-              <div className="mt-2 flex items-center justify-end gap-2 border-t border-line pt-2">
-                <StatusSelect id={item.id} status={item.status} />
-                <Link
-                  href={`/items/${item.id}`}
-                  className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted hover:text-ink"
-                >
-                  <Pencil size={12} /> Edit
-                </Link>
-              </div>
-            </ItemCard>
+            <ItemCard key={item.id} item={item} />
           ))}
         </ul>
       )}
