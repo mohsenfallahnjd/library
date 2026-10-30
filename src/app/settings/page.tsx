@@ -13,7 +13,7 @@ export default function SettingsPage() {
       <section id="stack" className="space-y-2">
         <h2 className="font-semibold">Your stack</h2>
         <p className="text-sm text-muted">
-          Topics used to pick Discover suggestions and to auto-tag new items. Comma separated.
+          Topics used to pick stories for the feed and to auto-tag new items. Comma separated.
         </p>
         <Suspense fallback={<div className="h-24 animate-pulse rounded-lg border border-line bg-surface" />}>
           <Topics />

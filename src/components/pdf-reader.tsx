@@ -251,7 +251,7 @@ export function PdfReader({ id, title, fileUrl, initialPage, initialTotal, hasCo
           !chrome && "pointer-events-none -translate-y-full opacity-0",
         )}
       >
-        <Link href="/" aria-label="Back to library" className="rounded-lg p-2 hover:bg-current/10">
+        <Link href="/library" aria-label="Back to library" className="rounded-lg p-2 hover:bg-current/10">
           <ArrowLeft size={18} />
         </Link>
         <div className="min-w-0 flex-1 px-1">

@@ -1,9 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   cacheComponents: true,
   partialPrefetching: true,
+  // The feed used to live at /discover.
+  async redirects() {
+    return [{ source: "/discover", destination: "/", permanent: true }];
+  },
   turbopack: {
     rules: {
       "*.css": {

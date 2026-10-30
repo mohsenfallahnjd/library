@@ -119,7 +119,7 @@ export function ItemCard({ item, density = "comfortable" }: { item: Item; densit
           <div className="relative z-10 mt-2 flex flex-wrap gap-1">
             {source && <span className="chip border-accent/30 text-accent">{source}</span>}
             {item.tags.map((t) => (
-              <Link key={t} href={`/?tag=${encodeURIComponent(t)}`} className="chip hover:border-accent hover:text-accent">
+              <Link key={t} href={`/library?tag=${encodeURIComponent(t)}`} className="chip hover:border-accent hover:text-accent">
                 #{t}
               </Link>
             ))}

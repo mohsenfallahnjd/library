@@ -18,7 +18,7 @@ export function SaveForm({ url, title }: { url: string; title: string }) {
           <button type="button" className="btn-ghost" onClick={() => window.close()}>
             Close
           </button>
-          <Link href="/" className="btn-primary">
+          <Link href="/library" className="btn-primary">
             Open library
           </Link>
         </div>

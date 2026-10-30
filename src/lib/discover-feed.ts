@@ -2,9 +2,12 @@ import "server-only";
 import { cacheLife } from "next/cache";
 import { fetchSuggestions } from "./discover";
 
-/** Suggestions for a topic list, cached for an hour so the sources aren't hammered. */
-export async function getSuggestions(topics: string[]) {
+/**
+ * The live feed for a topic list. Cached for a few minutes so a busy
+ * morning of refreshing doesn't hammer HN, Lobsters and dev.to.
+ */
+export async function getFeed(topics: string[]) {
   "use cache";
-  cacheLife("hours");
-  return fetchSuggestions(topics);
+  cacheLife("minutes");
+  return { suggestions: await fetchSuggestions(topics), fetchedAt: new Date().toISOString() };
 }

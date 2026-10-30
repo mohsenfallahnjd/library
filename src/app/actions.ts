@@ -67,13 +67,13 @@ export async function saveItemAction(id: string, _: ActionResult, form: FormData
   } catch (err) {
     return toResult(err);
   }
-  redirect("/");
+  redirect("/library");
 }
 
 export async function deleteItemAction(id: string): Promise<void> {
   await requireSession();
   await deleteItem(id);
-  redirect("/");
+  redirect("/library");
 }
 
 export async function saveSuggestionAction(input: { url: string; title: string; source: SourceId }): Promise<ActionResult> {

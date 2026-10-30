@@ -10,7 +10,7 @@ export const metadata: Metadata = { title: "Edit" };
 export default function EditPage({ params }: PageProps<"/items/[id]">) {
   return (
     <div className="space-y-4">
-      <Link href="/" className="text-sm text-muted hover:text-ink">
+      <Link href="/library" className="text-sm text-muted hover:text-ink">
         ← Library
       </Link>
       <Suspense fallback={<div className="h-96 animate-pulse rounded-xl border border-line bg-surface" />}>

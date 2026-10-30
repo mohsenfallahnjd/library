@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
+import { NavLink } from "@/components/nav-link";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -37,12 +38,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               <span className="text-accent">~/</span>library
             </Link>
             <div className="ml-auto flex items-center gap-4 text-muted">
-              <Link href="/discover" className="hover:text-ink">
-                Discover
-              </Link>
-              <Link href="/settings" className="hover:text-ink">
-                Settings
-              </Link>
+              <NavLink href="/">Feed</NavLink>
+              <NavLink href="/library">Library</NavLink>
+              <NavLink href="/settings">Settings</NavLink>
             </div>
           </nav>
         </header>
