@@ -39,6 +39,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Only PDF files are allowed" }, { status: 400 });
   }
   if (file.size > MAX_BYTES) return NextResponse.json({ error: "File is too large" }, { status: 413 });
-  const key = await saveFile(newFileKey(file.name), file);
-  return NextResponse.json({ key });
+  try {
+    const key = await saveFile(newFileKey(file.name), file);
+    return NextResponse.json({ key });
+  } catch (err) {
+    // e.g. deployed without a Blob store: say so instead of a bare 500.
+    return NextResponse.json({ error: (err as Error).message }, { status: 503 });
+  }
 }
