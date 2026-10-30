@@ -75,7 +75,8 @@ bun run dev                 # http://localhost:3000
    This adds `BLOB_READ_WRITE_TOKEN`.
 4. **Secrets**: in *Settings → Environment Variables* add `LIBRARY_PASSWORD`,
    `AUTH_SECRET` and `LIBRARY_API_TOKEN` (Production and Preview).
-5. **Migrate** the Neon database from your machine:
+5. **Migrations run on every Vercel build** (`vercel-build` runs `drizzle-kit migrate`
+   before `next build`, using `DATABASE_URL_UNPOOLED`). To run them by hand instead:
 
    ```bash
    bunx vercel link
@@ -83,7 +84,6 @@ bun run dev                 # http://localhost:3000
    bun --env-file=.env.production.local run db:migrate
    ```
 
-   Repeat this after every new migration.
 6. Deploy (push to `main`, or `bunx vercel --prod`). Open the site, sign in,
    and on the phone use *Share → Add to Home Screen*.
 
