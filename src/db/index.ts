@@ -9,8 +9,14 @@ export type Db = PgDatabase<PgQueryResultHKT, typeof schema>;
 
 const globalForDb = globalThis as unknown as { pg?: postgres.Sql };
 
+const url = process.env.DATABASE_URL;
 const client =
-  globalForDb.pg ?? postgres(process.env.DATABASE_URL!, { max: 10 });
+  globalForDb.pg ??
+  postgres(url!, {
+    max: 5,
+    // Neon's pooler (PgBouncer, transaction mode) can't keep prepared statements.
+    prepare: !url?.includes("-pooler."),
+  });
 if (process.env.NODE_ENV !== "production") globalForDb.pg = client;
 
 export const db: Db = drizzle(client, { schema });

@@ -34,6 +34,10 @@ export async function saveFile(key: string, data: Blob): Promise<string> {
     });
     return blob.pathname;
   }
+  if (process.env.VERCEL) {
+    // The deployed file system is read-only; local storage is for development.
+    throw new Error("Connect a Vercel Blob store (BLOB_READ_WRITE_TOKEN) to upload files");
+  }
   const file = path.join(UPLOAD_DIR, key);
   await mkdir(path.dirname(file), { recursive: true });
   await writeFile(file, Buffer.from(await data.arrayBuffer()));
