@@ -1,6 +1,6 @@
 # ADR 0001: Stack for the library
 
-- **Status:** Proposed
+- **Status:** Accepted (amended by [ADR 0002](0002-tech-focus-private-files-and-stateless-auth.md))
 - **Date:** 2026-10-30
 
 ## Context
