@@ -216,7 +216,7 @@ export function createItems(deps: ItemsDeps) {
         title,
         url: input.url,
         author: input.author,
-        tags: await autoTags(`${title} ${input.url}`, input.tags),
+        tags: await autoTags(`${title} ${hostnameOf(new URL(input.url)).replace(/\./g, " ")}`, input.tags),
         notes: input.notes,
         source: input.source,
       })

@@ -63,6 +63,11 @@ describe("addItem", () => {
     expect(item.tags).toEqual(["reading-list", "perf", "nextjs", "postgres"]);
   });
 
+  it("tags by hostname too", async () => {
+    const { item } = await items.addItem({ url: "https://www.postgresql.org/docs/current/indexes.html", title: "Indexes" });
+    expect(item.tags).toEqual(["postgres"]);
+  });
+
   it("adds a book from an uploaded file key", async () => {
     const { item } = await items.addItem(book);
     expect(item).toMatchObject({ kind: "book", fileKey: book.fileKey, url: null, lastPage: null });

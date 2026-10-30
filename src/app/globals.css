@@ -47,20 +47,22 @@ body {
   color: var(--ink);
 }
 
-@layer components {
-  .input {
-    @apply w-full rounded-lg border border-line bg-surface px-3 py-2 text-base text-ink placeholder:text-muted outline-none focus:border-accent sm:text-sm;
-  }
-  .btn {
-    @apply inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors disabled:opacity-50;
-  }
-  .btn-primary {
-    @apply btn bg-accent text-accent-ink hover:opacity-90;
-  }
-  .btn-ghost {
-    @apply btn border border-line bg-surface text-ink hover:bg-bg;
-  }
-  .chip {
-    @apply inline-flex items-center rounded-full border border-line px-2 py-0.5 font-mono text-xs text-muted;
-  }
+@utility input {
+  @apply w-full rounded-lg border border-line bg-surface px-3 py-2 text-base text-ink outline-none placeholder:text-muted focus:border-accent sm:text-sm;
+}
+
+@utility btn {
+  @apply inline-flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors disabled:opacity-50;
+}
+
+@utility btn-primary {
+  @apply btn bg-accent text-accent-ink hover:opacity-90;
+}
+
+@utility btn-ghost {
+  @apply btn border border-line bg-surface text-ink hover:bg-bg;
+}
+
+@utility chip {
+  @apply inline-flex items-center rounded-full border border-line px-2 py-0.5 font-mono text-xs text-muted;
 }
