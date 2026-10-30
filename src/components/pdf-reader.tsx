@@ -114,8 +114,8 @@ export function PdfReader({ id, title, fileUrl, initialPage }: Props) {
   const touch = useRef<{ x: number; y: number } | null>(null);
 
   return (
-    <div className="-mx-4 -mt-5 flex flex-col">
-      <div className="sticky top-[49px] z-10 flex items-center gap-2 border-b border-line bg-bg/95 px-3 py-2 text-sm backdrop-blur">
+    <div className="-mx-4 -mt-5 -mb-5 flex min-h-[calc(100dvh-49px-env(safe-area-inset-top))] flex-col">
+      <div className="sticky top-[calc(49px+env(safe-area-inset-top))] z-10 flex items-center gap-2 border-b border-line bg-bg/95 px-3 py-2 text-sm backdrop-blur">
         <Link href="/" className="shrink-0 text-muted hover:text-ink" aria-label="Back to library">
           ←
         </Link>
@@ -130,7 +130,7 @@ export function PdfReader({ id, title, fileUrl, initialPage }: Props) {
 
       <div
         ref={box}
-        className="relative overflow-x-auto bg-bg px-2 py-3 select-none"
+        className="relative flex-1 overflow-x-auto bg-bg px-2 py-3 select-none"
         onTouchStart={(e) => (touch.current = { x: e.touches[0].clientX, y: e.touches[0].clientY })}
         onTouchEnd={(e) => {
           const start = touch.current;
