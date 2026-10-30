@@ -4,11 +4,11 @@ import { mkdir, rm, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { Readable } from "node:stream";
 import { del, get, put } from "@vercel/blob";
-import { isValidKey, makeFileKey } from "./file-key";
+import { contentTypeOf, isValidKey, makeFileKey } from "./file-key";
 import { newId } from "./id";
 
 /**
- * File storage for PDFs. Uses private Vercel Blob when BLOB_READ_WRITE_TOKEN is
+ * File storage for PDFs and their cover images. Uses private Vercel Blob when BLOB_READ_WRITE_TOKEN is
  * set, otherwise the local ./uploads folder. Callers only see opaque keys;
  * files are served back through /api/files/[...key], behind auth.
  */
@@ -28,8 +28,9 @@ export async function saveFile(key: string, data: Blob): Promise<string> {
   if (usesBlob()) {
     const blob = await put(key, data, {
       access: "private",
-      contentType: "application/pdf",
+      contentType: contentTypeOf(key),
       addRandomSuffix: false,
+      allowOverwrite: true,
     });
     return blob.pathname;
   }
@@ -51,7 +52,7 @@ export async function readFile(key: string): Promise<StoredFile | null> {
   if (!info?.isFile()) return null;
   return {
     body: Readable.toWeb(createReadStream(file)) as ReadableStream<Uint8Array>,
-    contentType: "application/pdf",
+    contentType: contentTypeOf(key),
     size: info.size,
   };
 }

@@ -2,9 +2,9 @@ import { and, arrayContains, desc, eq, ilike, sql, type SQL } from "drizzle-orm"
 import { z } from "zod";
 import { db, type Db } from "@/db";
 import { items, type ItemRow } from "@/db/schema";
-import { isValidKey } from "./file-key";
+import { isValidKey, makeCoverKey } from "./file-key";
 import { getStackTopics } from "./stack";
-import { removeFile } from "./storage";
+import { removeFile, saveFile } from "./storage";
 import { fetchTitle, hostnameOf, parseHttpUrl, type PageInfo } from "./title";
 import { normalizeUrl } from "./url";
 import { matchTopics } from "./topics";
@@ -29,6 +29,7 @@ export interface Item {
   title: string;
   url: string | null;
   fileKey: string | null;
+  coverKey: string | null;
   author: string | null;
   tags: string[];
   status: Status;
@@ -145,8 +146,10 @@ export type ItemsDeps = {
   fetchTitle?: (url: string) => Promise<PageInfo>;
   /** Stack topics used to auto-tag new items. */
   topics?: () => Promise<string[]>;
-  /** Deletes a stored PDF when its book is deleted. */
+  /** Deletes a stored PDF (and cover) when its book is deleted. */
   removeFile?: (key: string) => Promise<void>;
+  /** Stores a file under a key; used for book covers. */
+  saveFile?: (key: string, data: Blob) => Promise<string>;
 };
 
 export function createItems(deps: ItemsDeps) {
@@ -267,8 +270,23 @@ export function createItems(deps: ItemsDeps) {
   async function deleteItem(id: string): Promise<boolean> {
     const [row] = await db.delete(items).where(eq(items.id, id)).returning();
     if (!row) return false;
-    if (row.fileKey && deps.removeFile) await deps.removeFile(row.fileKey).catch(() => {});
+    for (const key of [row.fileKey, row.coverKey]) {
+      if (key && deps.removeFile) await deps.removeFile(key).catch(() => {});
+    }
     return true;
+  }
+
+  /** Stores a book's cover image (a small JPEG of its first page). */
+  async function setCover(id: string, image: Blob): Promise<Item> {
+    const current = await mustGet(id);
+    if (current.kind !== "book") throw new ItemError("Only books have covers", "invalid");
+    if (image.type !== "image/jpeg" || image.size === 0 || image.size > 1024 * 1024) {
+      throw new ItemError("Cover must be a JPEG under 1 MB", "invalid");
+    }
+    if (!deps.saveFile) throw new Error("No file storage configured");
+    const coverKey = await deps.saveFile(makeCoverKey(id), image);
+    const [row] = await db.update(items).set({ coverKey }).where(eq(items.id, id)).returning();
+    return toItem(row);
   }
 
   /** Newest first. `reading` items are shown first when no status filter is set. */
@@ -298,7 +316,7 @@ export function createItems(deps: ItemsDeps) {
     return list.map((r) => ({ tag: r.tag, count: Number(r.count) }));
   }
 
-  return { addItem, getItem, updateItem, updateProgress, deleteItem, listItems, listTags };
+  return { addItem, getItem, updateItem, updateProgress, setCover, deleteItem, listItems, listTags };
 }
 
 function parse<T extends z.ZodType>(schema: T, value: unknown): z.output<T> {
@@ -315,7 +333,7 @@ export type Items = ReturnType<typeof createItems>;
 
 // ---------- the app's instance ----------
 
-const library = createItems({ db, fetchTitle, removeFile, topics: getStackTopics });
+const library = createItems({ db, fetchTitle, removeFile, saveFile, topics: getStackTopics });
 
-export const { addItem, getItem, updateItem, updateProgress, deleteItem, listItems, listTags } =
+export const { addItem, getItem, updateItem, updateProgress, setCover, deleteItem, listItems, listTags } =
   library;

@@ -5,6 +5,7 @@ import { ArrowLeft, ChevronLeft, ChevronRight, Columns2, Crop, Minus, Moon, Plus
 import Link from "next/link";
 import type { PDFDocumentLoadingTask, PDFDocumentProxy, PDFPageProxy, RenderTask, TextLayer } from "pdfjs-dist";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { loadPdfjs, uploadCover } from "@/lib/pdf-cover";
 
 const SAVE_DELAY_MS = 800;
 const MAX_WIDTH = 760; // comfortable line length on big screens
@@ -24,14 +25,14 @@ const THEMES: Record<Theme, { label: string; icon: typeof Sun; surround: string;
   night: { label: "Night", icon: Moon, surround: "bg-[#121214]", page: "invert-[.9] hue-rotate-180", next: "light" },
 };
 
-type Props = { id: string; title: string; fileUrl: string; initialPage: number; initialTotal: number | null };
+type Props = { id: string; title: string; fileUrl: string; initialPage: number; initialTotal: number | null; hasCover: boolean };
 
 /**
  * Full-screen, one page at a time. Tap the sides (or swipe, or use the arrow
  * keys) to turn pages, tap the middle to show or hide the controls. Saves the
  * page (debounced) and resumes there.
  */
-export function PdfReader({ id, title, fileUrl, initialPage, initialTotal }: Props) {
+export function PdfReader({ id, title, fileUrl, initialPage, initialTotal, hasCover }: Props) {
   const [doc, setDoc] = useState<PDFDocumentProxy | null>(null);
   const [page, setPage] = useState(initialPage);
   const [zoom, setZoom] = useState(1);
@@ -59,19 +60,20 @@ export function PdfReader({ id, title, fileUrl, initialPage, initialTotal }: Pro
     let cancelled = false;
     let task: PDFDocumentLoadingTask | null = null;
     (async () => {
-      const pdfjs = await import("pdfjs-dist");
-      pdfjs.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/build/pdf.worker.min.mjs", import.meta.url).toString();
+      const pdfjs = await loadPdfjs();
       task = pdfjs.getDocument({ url: fileUrl, disableRange: true });
       const loaded = await task.promise;
       if (cancelled) return;
       setDoc(loaded);
       setPage((p) => Math.min(Math.max(1, p), loaded.numPages));
+      // Books uploaded before covers existed get one the first time they are opened.
+      if (!hasCover) uploadCover(id, loaded);
     })().catch((err: Error) => !cancelled && setError(err.message));
     return () => {
       cancelled = true;
       task?.destroy();
     };
-  }, [fileUrl]);
+  }, [fileUrl, hasCover, id]);
 
   // Render the current page off-screen, then swap it in (no blank flash between pages).
   useEffect(() => {
@@ -80,7 +82,7 @@ export function PdfReader({ id, title, fileUrl, initialPage, initialTotal }: Pro
     let text: TextLayer | null = null;
     let cancelled = false;
     (async () => {
-      const pdfjs = await import("pdfjs-dist");
+      const pdfjs = await loadPdfjs();
       const p = await doc.getPage(page);
       if (cancelled) return;
       const base = p.getViewport({ scale: 1 });

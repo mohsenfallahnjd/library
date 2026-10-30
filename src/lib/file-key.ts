@@ -1,6 +1,9 @@
-/** Storage keys look like "library/<id>-<slug>.pdf". Shared by server and browser. */
+/**
+ * Storage keys look like "library/<id>-<slug>.pdf" (books) or
+ * "library/<id>-cover.jpg" (their covers). Shared by server and browser.
+ */
 
-const KEY_RE = /^library\/[a-z0-9]+(?:-[a-z0-9]+)*\.pdf$/;
+const KEY_RE = /^library\/[a-z0-9]+(?:-[a-z0-9]+)*\.(pdf|jpg)$/;
 
 export function makeFileKey(filename: string, id: string) {
   const slug = filename
@@ -12,7 +15,12 @@ export function makeFileKey(filename: string, id: string) {
   return `library/${id.toLowerCase().replace(/[^a-z0-9]/g, "")}-${slug || "book"}.pdf`;
 }
 
-/** Rejects anything that was not made by makeFileKey (no path tricks). */
+/** Cover image key for a book. */
+export const makeCoverKey = (id: string) => `library/${id.toLowerCase().replace(/[^a-z0-9]/g, "")}-cover.jpg`;
+
+export const contentTypeOf = (key: string) => (key.endsWith(".jpg") ? "image/jpeg" : "application/pdf");
+
+/** Rejects anything that was not made by makeFileKey or makeCoverKey (no path tricks). */
 export const isValidKey = (key: string) => KEY_RE.test(key);
 
 /** "my-great-book.pdf" → "my great book". */

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { addBookAction } from "@/app/actions";
 import { makeFileKey, titleFromFilename } from "@/lib/file-key";
+import { uploadCoverFromFile } from "@/lib/pdf-cover";
 
 /** Uploads a PDF (straight to Vercel Blob, or to /api/upload locally), then creates the book. */
 export function UploadBookForm({ direct }: { direct: boolean }) {
@@ -44,6 +45,7 @@ export function UploadBookForm({ direct }: { direct: boolean }) {
         tags: String(form.get("tags") ?? ""),
       });
       if (result.error) throw new Error(result.error);
+      if (result.id) await uploadCoverFromFile(result.id, file);
       setFile(null);
       setStatus({ message: result.message });
       router.refresh();

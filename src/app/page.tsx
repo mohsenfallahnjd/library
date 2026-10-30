@@ -1,7 +1,9 @@
+import { cookies } from "next/headers";
 import { Suspense } from "react";
 import { AddPanel } from "@/components/add-panel";
 import { FilterBar } from "@/components/filter-bar";
-import { ItemCard } from "@/components/item-card";
+import { DensityToggle } from "@/components/density-toggle";
+import { ItemCard, type Density } from "@/components/item-card";
 import { filterSchema, listItems, listTags } from "@/lib/items";
 import { usesBlob } from "@/lib/storage";
 
@@ -25,20 +27,27 @@ async function Library({ searchParams }: { searchParams: PageProps<"/">["searchP
     tag: one(params.tag),
     q: one(params.q),
   });
-  const [items, tags] = await Promise.all([listItems(filter), listTags()]);
+  const [items, tags, jar] = await Promise.all([listItems(filter), listTags(), cookies()]);
+  const density: Density = jar.get("density")?.value === "compact" ? "compact" : "comfortable";
   const filtered = Boolean(filter.kind || filter.status || filter.tag || filter.q);
 
   return (
     <div className="space-y-3">
-      <FilterBar filter={filter} tags={tags} />
+      <FilterBar filter={filter} tags={tags} toggle={<DensityToggle density={density} />} />
       {items.length === 0 ? (
         <p className="py-10 text-center text-sm text-muted">
           {filtered ? "No items match these filters." : "Nothing here yet. Paste a link above."}
         </p>
       ) : (
-        <ul className="space-y-2.5">
+        <ul
+          className={
+            density === "compact"
+              ? "divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface"
+              : "space-y-2.5"
+          }
+        >
           {items.map((item) => (
-            <ItemCard key={item.id} item={item} />
+            <ItemCard key={item.id} item={item} density={density} />
           ))}
         </ul>
       )}

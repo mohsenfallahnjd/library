@@ -25,6 +25,8 @@ export const items = pgTable(
     url: text("url"),
     /** Storage key of the PDF (Vercel Blob pathname or a file under ./uploads). */
     fileKey: text("file_key"),
+    /** Storage key of the book's cover (first page as JPEG), made in the browser. */
+    coverKey: text("cover_key"),
     author: text("author"),
     tags: text("tags")
       .array()

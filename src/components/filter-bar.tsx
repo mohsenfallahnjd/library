@@ -23,7 +23,15 @@ const STATUSES = [
 ] as const;
 
 /** Filters live in the URL so they survive reloads and can be bookmarked. */
-export function FilterBar({ filter, tags }: { filter: ItemFilter; tags: { tag: string; count: number }[] }) {
+export function FilterBar({
+  filter,
+  tags,
+  toggle,
+}: {
+  filter: ItemFilter;
+  tags: { tag: string; count: number }[];
+  toggle?: React.ReactNode;
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const [pending, start] = useTransition();
@@ -42,8 +50,8 @@ export function FilterBar({ filter, tags }: { filter: ItemFilter; tags: { tag: s
 
   return (
     <div className={clsx("space-y-2", pending && "opacity-70")}>
-      <div className="flex gap-2">
-        <label className="relative flex-1">
+      <div className="flex flex-wrap gap-2 sm:flex-nowrap">
+        <label className="relative basis-full sm:basis-auto sm:flex-1">
           <Search size={15} className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted" />
           <input
             ref={search}
@@ -63,7 +71,7 @@ export function FilterBar({ filter, tags }: { filter: ItemFilter; tags: { tag: s
           aria-label="Status"
           value={filter.status ?? ""}
           onChange={(e) => go({ status: e.currentTarget.value })}
-          className="input w-auto"
+          className="input flex-1 sm:w-auto sm:flex-none"
         >
           {STATUSES.map(([v, label]) => (
             <option key={v} value={v}>
@@ -71,6 +79,7 @@ export function FilterBar({ filter, tags }: { filter: ItemFilter; tags: { tag: s
             </option>
           ))}
         </select>
+        {toggle}
       </div>
 
       <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1 text-sm [scrollbar-width:none]">

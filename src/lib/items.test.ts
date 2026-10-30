@@ -10,16 +10,19 @@ import type { PageInfo } from "./title";
 let items: Items;
 let fetchTitle: Mock<(url: string) => Promise<PageInfo>>;
 let removeFile: Mock<(key: string) => Promise<void>>;
+let saveFile: Mock<(key: string, data: Blob) => Promise<string>>;
 
 beforeEach(async () => {
   const db = drizzle(new PGlite(), { schema });
   await migrate(db, { migrationsFolder: "drizzle" });
   fetchTitle = vi.fn<(url: string) => Promise<PageInfo>>(async (url: string) => ({ title: `Title of ${new URL(url).pathname}` }));
   removeFile = vi.fn<(key: string) => Promise<void>>(async () => {});
+  saveFile = vi.fn<(key: string, data: Blob) => Promise<string>>(async (key) => key);
   items = createItems({
     db: db as unknown as Db,
     fetchTitle,
     removeFile,
+    saveFile,
     topics: async () => ["Next.js", "Postgres", "TypeScript"],
   });
 });
@@ -126,11 +129,31 @@ describe("updateProgress", () => {
   });
 });
 
-describe("deleteItem", () => {
-  it("deletes the row and the stored PDF", async () => {
+describe("setCover", () => {
+  const jpeg = new Blob([new Uint8Array([0xff, 0xd8, 0xff])], { type: "image/jpeg" });
+
+  it("stores a cover for a book", async () => {
     const { item } = await items.addItem(book);
+    const updated = await items.setCover(item.id, jpeg);
+    expect(updated.coverKey).toBe(`library/${item.id}-cover.jpg`);
+    expect(saveFile).toHaveBeenCalledWith(updated.coverKey, jpeg);
+  });
+
+  it("rejects links and non-JPEG files", async () => {
+    const { item: link } = await items.addItem({ url: "https://example.com/cover" });
+    await expect(items.setCover(link.id, jpeg)).rejects.toThrow(/books/);
+    const { item } = await items.addItem(book);
+    await expect(items.setCover(item.id, new Blob(["<svg/>"], { type: "image/svg+xml" }))).rejects.toThrow(/JPEG/);
+  });
+});
+
+describe("deleteItem", () => {
+  it("deletes the row, the stored PDF and its cover", async () => {
+    const { item } = await items.addItem(book);
+    const { coverKey } = await items.setCover(item.id, new Blob([new Uint8Array([1])], { type: "image/jpeg" }));
     expect(await items.deleteItem(item.id)).toBe(true);
     expect(removeFile).toHaveBeenCalledWith(book.fileKey);
+    expect(removeFile).toHaveBeenCalledWith(coverKey);
     expect(await items.getItem(item.id)).toBeNull();
     expect(await items.deleteItem(item.id)).toBe(false);
   });

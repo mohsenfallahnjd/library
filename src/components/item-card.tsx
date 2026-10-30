@@ -46,7 +46,10 @@ function initials(title: string) {
     .join("");
 }
 
-export function ItemCard({ item }: { item: Item }) {
+export type Density = "comfortable" | "compact";
+
+export function ItemCard({ item, density = "comfortable" }: { item: Item; density?: Density }) {
+  const compact = density === "compact";
   const isBook = item.kind === "book";
   const href = isBook ? `/read/${item.id}` : item.url!;
   const site = host(item.url);
@@ -57,6 +60,8 @@ export function ItemCard({ item }: { item: Item }) {
   const label = item.source && item.source in SOURCE_LABEL ? SOURCE_LABEL[item.source as SourceId] : null;
   const source = label && site && !site.endsWith(label) ? `via ${label}` : null;
   const when = done && item.finishedAt ? `finished ${ago(item.finishedAt)}` : ago(item.addedAt);
+
+  if (compact) return <CompactRow item={item} href={href} site={site} progress={progress} when={when} />;
 
   return (
     <li
@@ -69,23 +74,7 @@ export function ItemCard({ item }: { item: Item }) {
         <span aria-hidden className="absolute inset-y-4 left-0 w-[3px] rounded-r-full bg-info" />
       )}
 
-      {/* Thumbnail: a coloured spine for books, the site's icon for links */}
-      {isBook ? (
-        <div
-          aria-hidden
-          className="relative flex h-16 w-12 shrink-0 items-end overflow-hidden rounded-[4px_8px_8px_4px] p-1.5 shadow-sm"
-          style={{
-            background: `linear-gradient(135deg, oklch(0.62 0.13 ${spineHue(item.title)}), oklch(0.45 0.12 ${spineHue(item.title) + 30}))`,
-          }}
-        >
-          <span className="absolute inset-y-0 left-1 w-px bg-white/25" />
-          <span className="font-mono text-xs font-bold tracking-tight text-white/95">{initials(item.title)}</span>
-        </div>
-      ) : (
-        <div aria-hidden className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-line bg-bg">
-          {site ? <Favicon host={site} /> : null}
-        </div>
-      )}
+      <Thumb item={item} site={site} compact={compact} />
 
       <div className="min-w-0 flex-1">
         <p className="flex items-center gap-1.5 truncate font-mono text-[11px] text-muted">
@@ -157,6 +146,100 @@ export function ItemCard({ item }: { item: Item }) {
             <Pencil size={14} />
           </Link>
         </div>
+      </div>
+    </li>
+  );
+}
+
+/** Cover (or coloured spine) for books, the site's icon for links. */
+function Thumb({ item, site, compact }: { item: Item; site: string | null; compact: boolean }) {
+  if (item.kind !== "book") {
+    return (
+      <div
+        aria-hidden
+        className={clsx(
+          "flex shrink-0 items-center justify-center border border-line bg-bg",
+          compact ? "size-8 rounded-lg" : "size-11 rounded-xl",
+        )}
+      >
+        {site ? <Favicon host={site} /> : null}
+      </div>
+    );
+  }
+  const size = compact ? "h-10 w-7.5 rounded-[2px_4px_4px_2px]" : "h-16 w-12 rounded-[3px_6px_6px_3px]";
+  if (item.coverKey) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element -- private file behind auth, served by our own route
+      <img
+        src={`/api/files/${item.coverKey}`}
+        alt=""
+        loading="lazy"
+        className={clsx("shrink-0 border border-black/10 bg-white object-cover object-top shadow-sm", size)}
+      />
+    );
+  }
+  const hue = spineHue(item.title);
+  return (
+    <div
+      aria-hidden
+      className={clsx("relative flex shrink-0 items-end overflow-hidden shadow-sm", size, compact ? "p-1" : "p-1.5")}
+      style={{ background: `linear-gradient(135deg, oklch(0.62 0.13 ${hue}), oklch(0.45 0.12 ${hue + 30}))` }}
+    >
+      <span className="absolute inset-y-0 left-1 w-px bg-white/25" />
+      <span className={clsx("font-mono font-bold tracking-tight text-white/95", compact ? "text-[9px]" : "text-xs")}>
+        {initials(item.title)}
+      </span>
+    </div>
+  );
+}
+
+/** One dense row: thumbnail, title, a little meta, status. */
+function CompactRow({
+  item,
+  href,
+  site,
+  progress,
+  when,
+}: {
+  item: Item;
+  href: string;
+  site: string | null;
+  progress: number | null;
+  when: string;
+}) {
+  const isBook = item.kind === "book";
+  const done = item.status === "done";
+  return (
+    <li className="group relative flex items-center gap-3 px-3 py-2 transition hover:bg-bg">
+      {item.status === "reading" && <span aria-hidden className="absolute inset-y-2 left-0 w-[3px] rounded-r-full bg-info" />}
+      <Thumb item={item} site={site} compact />
+      <div className="min-w-0 flex-1">
+        <a
+          href={href}
+          {...(isBook ? {} : { target: "_blank", rel: "noreferrer" })}
+          className={clsx(
+            "block truncate text-sm font-medium outline-none after:absolute after:inset-0 focus-visible:after:ring-2 focus-visible:after:ring-accent/50 group-hover:text-accent",
+            done && "text-muted line-through decoration-muted/40",
+          )}
+        >
+          {item.title}
+        </a>
+        <p className="truncate font-mono text-[11px] text-muted">
+          {[isBook ? item.author : site, progress !== null ? `p.${item.lastPage}/${item.totalPages} · ${progress}%` : null, when]
+            .filter(Boolean)
+            .join(" · ")}
+        </p>
+      </div>
+      <div className="relative z-10 flex shrink-0 items-center gap-1">
+        <StatusSelect id={item.id} status={item.status} />
+        <Link
+          href={`/items/${item.id}`}
+          aria-label={`Edit ${item.title}`}
+          title="Edit"
+          className="hidden size-7 items-center justify-center rounded-full text-muted hover:bg-surface hover:text-ink sm:inline-flex"
+        >
+          <Pencil size={13} />
+        </Link>
       </div>
     </li>
   );
