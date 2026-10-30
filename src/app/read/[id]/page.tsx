@@ -24,6 +24,7 @@ async function Reader({ params }: { params: PageProps<"/read/[id]">["params"] })
       title={item.title}
       fileUrl={`/api/files/${item.fileKey}`}
       initialPage={item.lastPage ?? 1}
+      initialTotal={item.totalPages}
     />
   );
 }

@@ -12,9 +12,9 @@ export const STATUS_LABEL: Record<Status, string> = {
 };
 
 const STATUS_STYLE: Record<Status, string> = {
-  "to-read": "text-muted",
-  reading: "text-info",
-  done: "text-ok",
+  "to-read": "border-line bg-surface text-muted",
+  reading: "border-info/30 bg-info/10 text-info",
+  done: "border-ok/30 bg-ok/10 text-ok",
 };
 
 export function StatusSelect({ id, status }: { id: string; status: Status }) {
@@ -34,7 +34,8 @@ export function StatusSelect({ id, status }: { id: string; status: Status }) {
         });
       }}
       className={clsx(
-        "rounded-md border border-line bg-surface px-1.5 py-1 font-mono text-xs outline-none focus:border-accent",
+        "h-7 rounded-full border pl-2.5 font-mono text-xs font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-accent/40",
+        "[background-position:right_0.45rem_center]! [background-size:0.85rem]! pr-6.5!",
         STATUS_STYLE[value],
       )}
     >

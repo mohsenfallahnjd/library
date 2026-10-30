@@ -66,3 +66,83 @@ body {
 @utility chip {
   @apply inline-flex items-center rounded-full border border-line px-2 py-0.5 font-mono text-xs text-muted;
 }
+
+/* Native selects with our own chevron, so they match the inputs everywhere.
+   Unlayered on purpose: it must beat px-* utilities so text never runs under the chevron. */
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.6rem center;
+  background-size: 1rem;
+  padding-right: 2rem !important;
+  cursor: pointer;
+  text-overflow: ellipsis;
+}
+select:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+select option {
+  background: var(--surface);
+  color: var(--ink);
+}
+
+/* PDF.js text layer: invisible text over the canvas so it can be selected and copied. */
+.textLayer {
+  position: absolute;
+  inset: 0;
+  overflow: clip;
+  line-height: 1;
+  text-align: initial;
+  text-size-adjust: none;
+  -webkit-text-size-adjust: none;
+  forced-color-adjust: none;
+  transform-origin: 0 0;
+  z-index: 0;
+  --scale-round-x: 1px;
+  --scale-round-y: 1px;
+  --min-font-size: 1;
+  --text-scale-factor: calc(var(--total-scale-factor) * var(--min-font-size));
+  --min-font-size-inv: calc(1 / var(--min-font-size));
+
+  :is(span, br) {
+    color: transparent;
+    position: absolute;
+    white-space: pre;
+    cursor: text;
+    transform-origin: 0% 0%;
+    user-select: text;
+  }
+  > :not(.markedContent),
+  .markedContent span:not(.markedContent) {
+    z-index: 1;
+    --font-height: 0;
+    font-size: calc(var(--text-scale-factor) * var(--font-height));
+    --scale-x: 1;
+    --rotate: 0deg;
+    transform: rotate(var(--rotate)) scaleX(var(--scale-x)) scale(var(--min-font-size-inv));
+  }
+  .markedContent {
+    display: contents;
+  }
+  ::selection {
+    background: color-mix(in srgb, var(--accent), transparent 65%);
+    color: transparent;
+  }
+  br::selection {
+    background: transparent;
+  }
+  .endOfContent {
+    display: block;
+    position: absolute;
+    inset: 100% 0 0;
+    z-index: 0;
+    cursor: default;
+    user-select: none;
+  }
+  &.selecting .endOfContent {
+    top: 0;
+  }
+}
