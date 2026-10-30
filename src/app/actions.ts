@@ -2,12 +2,14 @@
 
 import { refresh } from "next/cache";
 import { redirect } from "next/navigation";
+import { requireSession } from "@/lib/auth";
 import { addItem, deleteItem, updateItem, type Status } from "@/lib/items";
 import { toResult, type ActionResult } from "@/lib/result";
 
 const text = (form: FormData, key: string) => String(form.get(key) ?? "");
 
 export async function addLinkAction(_: ActionResult, form: FormData): Promise<ActionResult> {
+  await requireSession();
   try {
     const { item, created } = await addItem({
       kind: form.get("kind") === "site" ? "site" : "article",
@@ -27,6 +29,7 @@ export async function addBookAction(input: {
   title: string;
   tags?: string;
 }): Promise<ActionResult> {
+  await requireSession();
   try {
     const { item } = await addItem({ kind: "book", ...input, tags: input.tags ?? "" });
     refresh();
@@ -37,6 +40,7 @@ export async function addBookAction(input: {
 }
 
 export async function setStatusAction(id: string, status: Status): Promise<ActionResult> {
+  await requireSession();
   try {
     await updateItem(id, { status });
     refresh();
@@ -47,6 +51,7 @@ export async function setStatusAction(id: string, status: Status): Promise<Actio
 }
 
 export async function saveItemAction(id: string, _: ActionResult, form: FormData): Promise<ActionResult> {
+  await requireSession();
   try {
     await updateItem(id, {
       kind: text(form, "kind") as never,
@@ -64,6 +69,7 @@ export async function saveItemAction(id: string, _: ActionResult, form: FormData
 }
 
 export async function deleteItemAction(id: string): Promise<void> {
+  await requireSession();
   await deleteItem(id);
   redirect("/");
 }

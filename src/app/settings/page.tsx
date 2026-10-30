@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Bookmarklet } from "@/components/bookmarklet";
+import { logoutAction } from "../login/actions";
 
 export const metadata: Metadata = { title: "Settings" };
 
@@ -30,6 +31,12 @@ export default function SettingsPage() {
         </ol>
         <p className="text-muted">Full steps are in the README.</p>
       </section>
+
+      <form action={logoutAction}>
+        <button type="submit" className="btn-ghost">
+          Sign out
+        </button>
+      </form>
     </div>
   );
 }
