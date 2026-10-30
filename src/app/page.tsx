@@ -1,16 +1,17 @@
 import { Pencil } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
-import { AddLinkForm } from "@/components/add-link-form";
+import { AddPanel } from "@/components/add-panel";
 import { FilterBar } from "@/components/filter-bar";
 import { ItemCard } from "@/components/item-card";
 import { StatusSelect } from "@/components/status-select";
 import { filterSchema, listItems, listTags } from "@/lib/items";
+import { usesBlob } from "@/lib/storage";
 
 export default function Home({ searchParams }: PageProps<"/">) {
   return (
     <div className="space-y-4">
-      <AddLinkForm />
+      <AddPanel directUpload={usesBlob()} />
       <Suspense fallback={<ListSkeleton />}>
         <Library searchParams={searchParams} />
       </Suspense>

@@ -22,6 +22,20 @@ export async function addLinkAction(_: ActionResult, form: FormData): Promise<Ac
   }
 }
 
+export async function addBookAction(input: {
+  fileKey: string;
+  title: string;
+  tags?: string;
+}): Promise<ActionResult> {
+  try {
+    const { item } = await addItem({ kind: "book", ...input, tags: input.tags ?? "" });
+    refresh();
+    return { ok: true, id: item.id, message: `Added “${item.title}”` };
+  } catch (err) {
+    return toResult(err);
+  }
+}
+
 export async function setStatusAction(id: string, status: Status): Promise<ActionResult> {
   try {
     await updateItem(id, { status });
