@@ -5,8 +5,9 @@ import { useActionState } from "react";
 import { deleteItemAction, saveItemAction } from "@/app/actions";
 import type { Item } from "@/lib/items";
 import { idle } from "@/lib/result-types";
-import { STATUS_LABEL } from "./status-select";
 import { Spinner } from "./spinner";
+
+const STATUS_LABEL = { "to-read": "To read", reading: "Reading", done: "Done" } as const;
 
 export function EditItemForm({ item }: { item: Item }) {
   const [state, action, pending] = useActionState(saveItemAction.bind(null, item.id), idle);

@@ -17,7 +17,9 @@ your stack.
 - **Books** (`/books`): hand-picked tech books matched to your topics and the
   tags you save, with covers from Open Library. "Want to read" adds the book
   to your library; attach its PDF later from the book's edit page.
-- **Library** (`/library`): everything you saved.
+- **Library** (`/library`): everything you saved, in Reading / To read / Done
+  tabs. One box searches or, when you paste a link, saves it; the PDF button
+  uploads a book. Opening an article moves it to Reading; ✓ Done finishes it.
 - **Phone**: installable PWA, a bookmarklet, an Android share target and an iOS Shortcut.
 - **Single user**: one password, signed httpOnly cookie.
 

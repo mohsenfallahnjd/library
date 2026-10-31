@@ -4,7 +4,7 @@ import Link from "next/link";
 import { SOURCE_LABEL, type SourceId } from "@/lib/discover";
 import type { Item } from "@/lib/items";
 import { Favicon } from "./favicon";
-import { StatusSelect } from "./status-select";
+import { DoneButton, OpenLink } from "./done-button";
 
 const KIND_LABEL = { book: "Book", article: "Article", site: "Site" } as const;
 
@@ -93,9 +93,11 @@ export function ItemCard({ item, density = "comfortable" }: { item: Item; densit
         </p>
 
         {/* The title link covers the whole card; controls sit above it. */}
-        <a
+        <OpenLink
+          id={item.id}
+          status={item.status}
           href={href}
-          {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
+          external={external}
           className={clsx(
             "mt-0.5 line-clamp-2 font-semibold leading-snug tracking-tight outline-none after:absolute after:inset-0 after:rounded-2xl focus-visible:after:ring-2 focus-visible:after:ring-accent/50 group-hover:text-accent",
             done && "text-muted",
@@ -103,7 +105,7 @@ export function ItemCard({ item, density = "comfortable" }: { item: Item; densit
         >
           {done && <Check size={15} className="mr-1 inline -translate-y-px text-ok" aria-label="Done" />}
           {item.title}
-        </a>
+        </OpenLink>
 
         {item.notes && <p className="mt-1 line-clamp-1 text-sm text-muted">{item.notes}</p>}
 
@@ -122,7 +124,7 @@ export function ItemCard({ item, density = "comfortable" }: { item: Item; densit
           <div className="relative z-10 mt-2 flex flex-wrap gap-1">
             {source && <span className="chip border-accent/30 text-accent">{source}</span>}
             {item.tags.map((t) => (
-              <Link key={t} href={`/library?tag=${encodeURIComponent(t)}`} className="chip hover:border-accent hover:text-accent">
+              <Link key={t} href={`/library?status=all&tag=${encodeURIComponent(t)}`} className="chip hover:border-accent hover:text-accent">
                 #{t}
               </Link>
             ))}
@@ -130,11 +132,10 @@ export function ItemCard({ item, density = "comfortable" }: { item: Item; densit
         )}
 
         <div className="relative z-10 mt-3 flex items-center gap-2">
-          <StatusSelect id={item.id} status={item.status} />
           {isBook && !done && !readable && (
             <Link
               href={`/items/${item.id}#pdf`}
-              className="inline-flex h-7 items-center gap-1 rounded-full border border-line px-3 text-xs font-medium text-muted hover:border-accent hover:text-accent"
+              className="inline-flex h-8 items-center gap-1 rounded-full border border-line px-3 text-xs font-medium text-muted hover:border-accent hover:text-accent"
             >
               Add PDF
             </Link>
@@ -142,12 +143,13 @@ export function ItemCard({ item, density = "comfortable" }: { item: Item; densit
           {isBook && !done && readable && (
             <Link
               href={href}
-              className="inline-flex h-7 items-center gap-1 rounded-full bg-accent px-3 text-xs font-medium text-accent-ink hover:opacity-90"
+              className="inline-flex h-8 items-center gap-1 rounded-full bg-accent px-3 text-xs font-medium text-accent-ink hover:opacity-90"
             >
               {item.lastPage && item.lastPage > 1 ? `Continue p.${item.lastPage}` : "Start reading"}
               <ArrowRight size={12} />
             </Link>
           )}
+          <DoneButton id={item.id} status={item.status} />
           <Link
             href={`/items/${item.id}`}
             aria-label={`Edit ${item.title}`}
@@ -227,16 +229,18 @@ function CompactRow({
       {item.status === "reading" && <span aria-hidden className="absolute inset-y-2 left-0 w-[3px] rounded-r-full bg-info" />}
       <Thumb item={item} site={site} compact />
       <div className="min-w-0 flex-1">
-        <a
+        <OpenLink
+          id={item.id}
+          status={item.status}
           href={href}
-          {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
+          external={external}
           className={clsx(
             "block truncate text-sm font-medium outline-none after:absolute after:inset-0 focus-visible:after:ring-2 focus-visible:after:ring-accent/50 group-hover:text-accent",
             done && "text-muted line-through decoration-muted/40",
           )}
         >
           {item.title}
-        </a>
+        </OpenLink>
         <p className="truncate font-mono text-[11px] text-muted">
           {[isBook ? item.author : site, progress !== null ? `p.${item.lastPage}/${item.totalPages} · ${progress}%` : null, when]
             .filter(Boolean)
@@ -244,7 +248,7 @@ function CompactRow({
         </p>
       </div>
       <div className="relative z-10 flex shrink-0 items-center gap-1">
-        <StatusSelect id={item.id} status={item.status} />
+        <DoneButton id={item.id} status={item.status} compact />
         <Link
           href={`/items/${item.id}`}
           aria-label={`Edit ${item.title}`}
