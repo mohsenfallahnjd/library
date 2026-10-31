@@ -38,7 +38,7 @@ export default function SettingsPage() {
           </li>
           <li>
             Header <code className="font-mono">Authorization: Bearer &lt;LIBRARY_API_TOKEN&gt;</code>, JSON body{" "}
-            <code className="font-mono">url</code> = Shortcut Input.
+            <code className="font-mono">url</code> = the result of “Get URLs from Input” (add that action first; Safari shares a page, not a link).
           </li>
           <li>Optionally add “Show Notification” with the returned title.</li>
         </ol>
