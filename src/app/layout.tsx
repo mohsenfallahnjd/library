@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
+import { BottomNav } from "@/components/bottom-nav";
 import { NavLink } from "@/components/nav-link";
 import "./globals.css";
 
@@ -37,7 +38,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <Link href="/" className="font-mono font-semibold tracking-tight">
               <span className="text-accent">~/</span>library
             </Link>
-            <div className="ml-auto flex items-center gap-3 text-muted sm:gap-4">
+            <div className="ml-auto hidden items-center gap-4 text-muted sm:flex">
               <NavLink href="/">Feed</NavLink>
               <NavLink href="/books">Books</NavLink>
               <NavLink href="/library">Library</NavLink>
@@ -45,7 +46,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             </div>
           </nav>
         </header>
-        <main className="mx-auto max-w-3xl px-4 py-5">{children}</main>
+        <main className="mx-auto max-w-3xl px-4 pt-5 pb-[calc(5.5rem+env(safe-area-inset-bottom))] sm:pb-8">{children}</main>
+        <BottomNav />
       </body>
     </html>
   );

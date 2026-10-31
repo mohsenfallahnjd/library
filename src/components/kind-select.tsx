@@ -19,7 +19,7 @@ export function KindSelect({ kind }: { kind?: string }) {
         else next.delete("kind");
         start(() => router.replace(`${pathname}?${next}`, { scroll: false }));
       }}
-      className="h-8 rounded-lg border border-line bg-surface pl-2.5 text-xs text-muted outline-none focus:border-accent"
+      className="h-9 rounded-lg border border-line bg-surface pl-2.5 text-base text-muted sm:h-8 sm:text-xs outline-none focus:border-accent"
     >
       <option value="">All types</option>
       <option value="article">Articles</option>

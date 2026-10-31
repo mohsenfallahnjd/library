@@ -167,7 +167,7 @@ export function FeedList({
               <button
                 type="button"
                 onClick={() => hide(group.stories, "read", `Marked ${group.stories.length} as read`)}
-                className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted hover:bg-surface hover:text-ink"
+                className="flex items-center gap-1 rounded-md px-2 py-2 text-xs text-muted hover:bg-surface hover:text-ink sm:py-1"
               >
                 <CheckCheck size={13} /> Mark all read
               </button>
@@ -225,7 +225,7 @@ export function FeedList({
                         onClick={() => hide([s], "read", "Marked as read")}
                         aria-label={`Mark “${s.title}” as read`}
                         title="Mark as read (r)"
-                        className="inline-flex size-8 items-center justify-center rounded-full border border-line text-muted transition hover:border-ok hover:bg-ok/10 hover:text-ok"
+                        className="inline-flex size-10 items-center justify-center rounded-full border border-line text-muted transition hover:border-ok hover:bg-ok/10 hover:text-ok active:scale-95 sm:size-8"
                       >
                         <Check size={15} />
                       </button>
@@ -235,7 +235,7 @@ export function FeedList({
                         disabled={busy === s.url || saved.has(s.url)}
                         aria-label={`Save “${s.title}” to library`}
                         title="Save to library (s)"
-                        className="inline-flex size-8 items-center justify-center rounded-full border border-line text-muted transition hover:border-accent hover:bg-accent/10 hover:text-accent disabled:opacity-60"
+                        className="inline-flex size-10 items-center justify-center rounded-full border border-line text-muted transition hover:border-accent hover:bg-accent/10 hover:text-accent active:scale-95 disabled:opacity-60 sm:size-8"
                       >
                         {busy === s.url ? <Spinner /> : saved.has(s.url) ? <Check size={15} className="text-ok" /> : <BookmarkPlus size={15} />}
                       </button>
@@ -255,7 +255,7 @@ export function FeedList({
       {toast && (
         <div
           role="status"
-          className="fixed inset-x-0 bottom-[max(1rem,env(safe-area-inset-bottom))] z-40 mx-auto flex w-fit max-w-[calc(100%-2rem)] items-center gap-3 rounded-full bg-ink py-2 pr-2 pl-4 text-sm text-bg shadow-lg"
+          className="fixed inset-x-0 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-40 sm:bottom-6 mx-auto flex w-fit max-w-[calc(100%-2rem)] items-center gap-3 rounded-full bg-ink py-2 pr-2 pl-4 text-sm text-bg shadow-lg"
         >
           <span className="truncate">{toast.text}</span>
           {toast.keys.length > 0 && (

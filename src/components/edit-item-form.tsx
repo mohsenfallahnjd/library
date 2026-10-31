@@ -56,8 +56,9 @@ export function EditItemForm({ item }: { item: Item }) {
           <textarea name="notes" defaultValue={item.notes ?? ""} rows={6} className="input font-mono" />
         </Field>
         {state.error && <p className="text-sm text-red-600">{state.error}</p>}
-        <div className="flex justify-end">
-          <button type="submit" disabled={pending} aria-busy={pending} className="btn-primary">
+        {/* On phones Save stays reachable above the tab bar. */}
+        <div className="sticky bottom-[calc(4rem+env(safe-area-inset-bottom))] -mx-4 -mb-4 flex justify-end rounded-b-xl border-t border-line bg-surface/95 px-4 py-3 backdrop-blur sm:static sm:mx-0 sm:mb-0 sm:border-0 sm:bg-transparent sm:p-0">
+          <button type="submit" disabled={pending} aria-busy={pending} className="btn-primary h-11 w-full sm:h-auto sm:w-auto">
             {pending ? (
             <>
               <Spinner /> Saving…

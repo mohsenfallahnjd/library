@@ -20,8 +20,8 @@ export function DoneButton({ id, status, compact = false }: { id: string; status
       title={done ? "Move back to To read" : "Mark as done"}
       className={
         compact
-          ? "inline-flex size-8 items-center justify-center rounded-full border border-line text-muted transition hover:border-ok hover:bg-ok/10 hover:text-ok disabled:opacity-60"
-          : "inline-flex h-8 items-center gap-1.5 rounded-full border border-line px-3 text-xs font-medium text-muted transition hover:border-ok hover:bg-ok/10 hover:text-ok disabled:opacity-60"
+          ? "inline-flex size-10 items-center justify-center rounded-full border border-line text-muted transition hover:border-ok hover:bg-ok/10 hover:text-ok active:scale-95 disabled:opacity-60 sm:size-8"
+          : "inline-flex h-10 items-center gap-1.5 rounded-full border border-line px-3.5 text-sm sm:h-8 sm:px-3 sm:text-xs font-medium text-muted transition hover:border-ok hover:bg-ok/10 hover:text-ok disabled:opacity-60"
       }
     >
       {pending ? <Spinner /> : done ? <RotateCcw size={14} /> : <Check size={14} />}

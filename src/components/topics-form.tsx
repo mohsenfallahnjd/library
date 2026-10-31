@@ -9,7 +9,7 @@ export function TopicsForm({ topics }: { topics: string[] }) {
   const [state, action, pending] = useActionState(saveTopicsAction, idle);
   return (
     <form action={action} className="space-y-2">
-      <textarea name="topics" defaultValue={topics.join(", ")} rows={3} aria-label="Stack topics" className="input font-mono" />
+      <textarea name="topics" defaultValue={topics.join(", ")} rows={5} aria-label="Stack topics" className="input font-mono" />
       <div className="flex items-center gap-3">
         <button type="submit" disabled={pending} aria-busy={pending} className="btn-primary">
           {pending ? (

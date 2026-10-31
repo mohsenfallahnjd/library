@@ -59,7 +59,7 @@ export function BookActions({ bookId, title }: { bookId: string; title: string }
               }
             });
           }}
-          className="inline-flex h-8 items-center gap-1.5 rounded-full bg-accent px-3 text-xs font-medium text-accent-ink hover:opacity-90 disabled:opacity-60"
+          className="inline-flex h-10 items-center gap-1.5 rounded-full bg-accent px-4 text-sm font-medium sm:h-8 sm:px-3 sm:text-xs text-accent-ink hover:opacity-90 disabled:opacity-60"
         >
           {pending && which === "want" ? <Spinner /> : <BookPlus size={14} />} Want to read
         </button>
@@ -75,7 +75,7 @@ export function BookActions({ bookId, title }: { bookId: string; title: string }
               setState("dismissed");
             });
           }}
-          className="inline-flex size-8 items-center justify-center rounded-full border border-line text-muted hover:text-ink disabled:opacity-60"
+          className="inline-flex size-10 items-center justify-center rounded-full border border-line text-muted sm:size-8 hover:text-ink disabled:opacity-60"
         >
           {pending && which === "dismiss" ? <Spinner /> : <X size={14} />}
         </button>

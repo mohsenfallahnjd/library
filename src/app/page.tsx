@@ -19,7 +19,7 @@ export default function FeedPage({ searchParams }: PageProps<"/">) {
     <div className="space-y-4">
       <div>
         <h1 className="text-lg font-semibold tracking-tight">Today in your stack</h1>
-        <p className="text-sm text-muted">
+        <p className="hidden text-sm text-muted sm:block">
           Hacker News, Lobsters, dev.to and TLDR filtered to your topics, plus the Next.js and Vercel blogs.{" "}
           <Link href="/settings#stack" className="underline decoration-line underline-offset-2 hover:text-ink">
             Edit topics
@@ -55,7 +55,7 @@ async function Feed({ searchParams }: { searchParams: PageProps<"/">["searchPara
   };
   const chip = (active: boolean) =>
     clsx(
-      "shrink-0 rounded-full border px-2.5 py-1 text-xs",
+      "shrink-0 rounded-full border px-3 py-1.5 text-xs sm:px-2.5 sm:py-1",
       active ? "border-accent bg-accent text-accent-ink" : "border-line bg-surface text-muted",
     );
 
@@ -100,12 +100,11 @@ async function Feed({ searchParams }: { searchParams: PageProps<"/">["searchPara
             {SOURCE_LABEL[s]}
           </Link>
         ))}
-      </div>
-      <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1 font-mono [scrollbar-width:none]">
+        <span aria-hidden className="mx-0.5 shrink-0 self-center text-line">|</span>
         {topics.map((t) => {
           const tag = topicTag(t);
           return (
-            <Link key={tag} href={href({ topic: topic === tag ? undefined : tag })} className={chip(topic === tag)}>
+            <Link key={tag} href={href({ topic: topic === tag ? undefined : tag })} className={clsx(chip(topic === tag), "font-mono")}>
               #{tag}
             </Link>
           );

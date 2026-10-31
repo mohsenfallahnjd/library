@@ -135,7 +135,7 @@ export function ItemCard({ item, density = "comfortable" }: { item: Item; densit
           {isBook && !done && !readable && (
             <Link
               href={`/items/${item.id}#pdf`}
-              className="inline-flex h-8 items-center gap-1 rounded-full border border-line px-3 text-xs font-medium text-muted hover:border-accent hover:text-accent"
+              className="inline-flex h-10 items-center gap-1 rounded-full border border-line px-3.5 text-sm font-medium text-muted hover:border-accent hover:text-accent sm:h-8 sm:px-3 sm:text-xs"
             >
               Add PDF
             </Link>
@@ -143,7 +143,7 @@ export function ItemCard({ item, density = "comfortable" }: { item: Item; densit
           {isBook && !done && readable && (
             <Link
               href={href}
-              className="inline-flex h-8 items-center gap-1 rounded-full bg-accent px-3 text-xs font-medium text-accent-ink hover:opacity-90"
+              className="inline-flex h-10 items-center gap-1 rounded-full bg-accent px-3.5 text-sm font-medium text-accent-ink hover:opacity-90 sm:h-8 sm:px-3 sm:text-xs"
             >
               {item.lastPage && item.lastPage > 1 ? `Continue p.${item.lastPage}` : "Start reading"}
               <ArrowRight size={12} />
@@ -154,7 +154,7 @@ export function ItemCard({ item, density = "comfortable" }: { item: Item; densit
             href={`/items/${item.id}`}
             aria-label={`Edit ${item.title}`}
             title="Edit"
-            className="ml-auto inline-flex size-7 items-center justify-center rounded-full text-muted transition hover:bg-bg hover:text-ink sm:opacity-0 sm:group-focus-within:opacity-100 sm:group-hover:opacity-100"
+            className="ml-auto inline-flex size-10 items-center justify-center rounded-full text-muted transition hover:bg-bg hover:text-ink sm:size-7 sm:opacity-0 sm:group-focus-within:opacity-100 sm:group-hover:opacity-100"
           >
             <Pencil size={14} />
           </Link>

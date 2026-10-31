@@ -27,11 +27,14 @@ async function Editor({ params }: { params: PageProps<"/items/[id]">["params"] }
   const item = await getItem(id);
   if (!item) notFound();
   return (
-    <div className="space-y-4">
-      {item.kind === "book" && (
-        <AttachPdf id={item.id} hasFile={Boolean(item.fileKey)} hasCover={Boolean(item.coverKey)} direct={usesBlob()} />
-      )}
+    <div className="flex flex-col gap-4">
       <EditItemForm item={item} />
+      {/* Adding the missing PDF is the main job; replacing one is rare. */}
+      {item.kind === "book" && (
+        <div className={item.fileKey ? "" : "-order-1"}>
+          <AttachPdf id={item.id} hasFile={Boolean(item.fileKey)} hasCover={Boolean(item.coverKey)} direct={usesBlob()} />
+        </div>
+      )}
     </div>
   );
 }

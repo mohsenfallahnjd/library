@@ -394,7 +394,7 @@ function PageInput({ page, total, onGo }: { page: number; total: number; onGo: (
         inputMode="numeric"
         enterKeyHint="go"
         aria-label="Go to page"
-        className="w-12 rounded-md border border-current/15 bg-transparent px-1 py-1 text-center"
+        className="w-14 rounded-md border border-current/15 bg-transparent px-1 py-1 text-center text-base sm:w-12 sm:text-xs"
       />
       <span className="opacity-60">/ {total || "…"}</span>
     </form>

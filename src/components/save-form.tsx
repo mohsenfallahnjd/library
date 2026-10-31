@@ -29,7 +29,7 @@ export function SaveForm({ url, title }: { url: string; title: string }) {
 
   return (
     <form action={action} className="space-y-3 rounded-xl border border-line bg-surface p-4">
-      <input name="url" type="url" required defaultValue={url} aria-label="URL" className="input font-mono text-xs" />
+      <input name="url" type="url" required defaultValue={url} aria-label="URL" className="input font-mono" />
       <input name="title" defaultValue={title} placeholder="Title (fetched automatically)" aria-label="Title" className="input" />
       <div className="grid grid-cols-2 gap-2">
         <select name="kind" defaultValue="article" aria-label="Kind" className="input">
