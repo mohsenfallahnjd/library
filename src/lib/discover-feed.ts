@@ -9,5 +9,6 @@ import { fetchSuggestions } from "./discover";
 export async function getFeed(topics: string[]) {
   "use cache";
   cacheLife("minutes");
-  return { suggestions: await fetchSuggestions(topics), fetchedAt: new Date().toISOString() };
+  // Fetch more than a screenful: stories you mark read make room for the next ones.
+  return { suggestions: await fetchSuggestions(topics, { limit: 200 }), fetchedAt: new Date().toISOString() };
 }

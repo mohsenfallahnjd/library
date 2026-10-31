@@ -33,14 +33,14 @@ export function AutoRefresh({ fetchedAt }: { fetchedAt: string }) {
     <button
       type="button"
       onClick={() => start(() => router.refresh())}
-      className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-2.5 py-1 font-mono text-[11px] text-muted hover:text-ink"
+      className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-line bg-surface px-2.5 py-1 font-mono text-[11px] text-muted hover:text-ink"
       title="Refresh now"
     >
       <span className="relative flex size-2">
         <span className="absolute inline-flex size-full animate-ping rounded-full bg-ok opacity-60" />
         <span className="relative inline-flex size-2 rounded-full bg-ok" />
       </span>
-      {pending ? "updating…" : mins < 1 ? "live · just now" : `live · ${mins}m ago`}
+      {pending ? "updating…" : mins < 1 ? "live" : `${mins}m ago`}
       <RefreshCw size={11} className={pending ? "animate-spin" : ""} />
     </button>
   );

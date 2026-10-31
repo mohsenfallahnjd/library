@@ -49,6 +49,23 @@ export const items = pgTable(
   ],
 );
 
+export const markStateEnum = pgEnum("mark_state", ["read", "hidden"]);
+
+/**
+ * Things seen outside the library: feed stories read or hidden (key = the
+ * story's normalised URL) and dismissed book suggestions (key = "book:<id>").
+ */
+export const marks = pgTable(
+  "marks",
+  {
+    key: text("key").primaryKey(),
+    state: markStateEnum("state").notNull(),
+    title: text("title"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("marks_created_at_idx").on(t.createdAt)],
+);
+
 /** Small key/value store for app settings (e.g. the stack topics used by Discover). */
 export const settings = pgTable("settings", {
   key: text("key").primaryKey(),

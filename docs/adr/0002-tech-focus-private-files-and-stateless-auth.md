@@ -23,6 +23,14 @@ and age. Posts on the official Next.js and Vercel blogs are always included for
 30 days. Results are cached for a few minutes with `"use cache"` and the page
 refreshes itself while open. The saved items moved to `/library`.
 
+Read and hidden stories are stored in a `marks` table (key = normalised URL),
+so the feed works like an inbox that stays in sync between phone and Mac; marks
+older than 60 days are pruned. **Books** are suggested from a hand-picked
+catalogue (`src/lib/books.ts`) ranked by topic overlap, because book search
+APIs return too much noise; Open Library only supplies covers and links. A
+book can now be in the library without a PDF (a wish list) and get its PDF
+attached later.
+
 The stack topics (Next.js, React, TypeScript, Postgres, Drizzle, Bun, …) are
 stored in a small `settings` table and are editable in Settings. They are also
 used to auto-tag new items, so a saved "PostgreSQL 18 indexing" post gets

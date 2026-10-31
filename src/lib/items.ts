@@ -90,15 +90,18 @@ const linkInput = z.object({
   source: optionalText(40),
 });
 
+/** A book with its PDF, or one you want to read (a link to it, PDF attached later). */
 const bookInput = z.object({
   kind: z.literal("book"),
-  fileKey: z.string().refine(isValidKey, "Invalid file key"),
+  fileKey: z.string().refine(isValidKey, "Invalid file key").nullish(),
+  url: httpUrl.nullish(),
   title: z.string().trim().min(1).max(300),
   author: optionalText(200),
   tags: tagsSchema.default([]),
   notes: optionalText(20_000),
   totalPages: z.number().int().positive().optional().nullable(),
-});
+  source: optionalText(40),
+}).refine((b) => b.fileKey || b.url, "A book needs a PDF or a link");
 
 export const addItemSchema = z.union([bookInput, linkInput]);
 export type AddItemInput = z.input<typeof addItemSchema>;
@@ -180,12 +183,18 @@ export function createItems(deps: ItemsDeps) {
     const input = parse(addItemSchema, raw);
 
     if (input.kind === "book") {
+      if (input.url) {
+        const [existing] = await db.select().from(items).where(eq(items.url, input.url)).limit(1);
+        if (existing) return { item: toItem(existing), created: false };
+      }
       const [row] = await db
         .insert(items)
         .values({
           kind: "book",
           title: input.title,
-          fileKey: input.fileKey,
+          fileKey: input.fileKey ?? null,
+          url: input.url ?? null,
+          source: input.source,
           author: input.author,
           tags: await autoTags(input.title, input.tags),
           notes: input.notes,
@@ -276,6 +285,22 @@ export function createItems(deps: ItemsDeps) {
     return true;
   }
 
+  /** Attaches (or replaces) the PDF of a book, e.g. one added from suggestions. */
+  async function attachFile(id: string, fileKey: string): Promise<Item> {
+    if (!isValidKey(fileKey) || !fileKey.endsWith(".pdf")) throw new ItemError("Invalid file key", "invalid");
+    const current = await mustGet(id);
+    if (current.kind !== "book") throw new ItemError("Only books have a PDF", "invalid");
+    const [row] = await db
+      .update(items)
+      .set({ fileKey, lastPage: null, totalPages: null, updatedAt: new Date() })
+      .where(eq(items.id, id))
+      .returning();
+    if (current.fileKey && current.fileKey !== fileKey && deps.removeFile) {
+      await deps.removeFile(current.fileKey).catch(() => {});
+    }
+    return toItem(row);
+  }
+
   /** Stores a book's cover image (a small JPEG of its first page). */
   async function setCover(id: string, image: Blob): Promise<Item> {
     const current = await mustGet(id);
@@ -316,7 +341,7 @@ export function createItems(deps: ItemsDeps) {
     return list.map((r) => ({ tag: r.tag, count: Number(r.count) }));
   }
 
-  return { addItem, getItem, updateItem, updateProgress, setCover, deleteItem, listItems, listTags };
+  return { addItem, getItem, updateItem, updateProgress, attachFile, setCover, deleteItem, listItems, listTags };
 }
 
 function parse<T extends z.ZodType>(schema: T, value: unknown): z.output<T> {
@@ -335,5 +360,5 @@ export type Items = ReturnType<typeof createItems>;
 
 const library = createItems({ db, fetchTitle, removeFile, saveFile, topics: getStackTopics });
 
-export const { addItem, getItem, updateItem, updateProgress, setCover, deleteItem, listItems, listTags } =
+export const { addItem, getItem, updateItem, updateProgress, attachFile, setCover, deleteItem, listItems, listTags } =
   library;

@@ -18,17 +18,15 @@ export function EditItemForm({ item }: { item: Item }) {
         <Field label="Title">
           <input name="title" defaultValue={item.title} required className="input" />
         </Field>
-        {!isBook && (
-          <Field label="URL">
-            <input name="url" type="url" defaultValue={item.url ?? ""} required className="input font-mono" />
-          </Field>
-        )}
+        <Field label={isBook ? "Link" : "URL"} hint={isBook ? "optional, e.g. where to get the book" : undefined}>
+          <input name="url" type="url" defaultValue={item.url ?? ""} required={!isBook} className="input font-mono" />
+        </Field>
         <div className="grid gap-3 sm:grid-cols-3">
           <Field label="Kind">
             {isBook ? (
               <>
                 <input type="hidden" name="kind" value="book" />
-                <input value="PDF book" disabled className="input" />
+                <input value="Book" disabled className="input" />
               </>
             ) : (
               <select name="kind" defaultValue={item.kind} className="input">
@@ -73,7 +71,7 @@ export function EditItemForm({ item }: { item: Item }) {
       <form
         action={deleteItemAction.bind(null, item.id)}
         onSubmit={(e) => {
-          if (!confirm(`Delete “${item.title}”?${isBook ? " The PDF is deleted too." : ""}`)) e.preventDefault();
+          if (!confirm(`Delete “${item.title}”?${item.fileKey ? " The PDF is deleted too." : ""}`)) e.preventDefault();
         }}
         className="flex justify-end"
       >

@@ -37,8 +37,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <Link href="/" className="font-mono font-semibold tracking-tight">
               <span className="text-accent">~/</span>library
             </Link>
-            <div className="ml-auto flex items-center gap-4 text-muted">
+            <div className="ml-auto flex items-center gap-3 text-muted sm:gap-4">
               <NavLink href="/">Feed</NavLink>
+              <NavLink href="/books">Books</NavLink>
               <NavLink href="/library">Library</NavLink>
               <NavLink href="/settings">Settings</NavLink>
             </div>

@@ -51,7 +51,10 @@ export type Density = "comfortable" | "compact";
 export function ItemCard({ item, density = "comfortable" }: { item: Item; density?: Density }) {
   const compact = density === "compact";
   const isBook = item.kind === "book";
-  const href = isBook ? `/read/${item.id}` : item.url!;
+  // A book without its PDF yet links to where to get it (or its edit page).
+  const readable = !isBook || Boolean(item.fileKey);
+  const href = isBook ? (item.fileKey ? `/read/${item.id}` : (item.url ?? `/items/${item.id}`)) : item.url!;
+  const external = !isBook || (!item.fileKey && Boolean(item.url));
   const site = host(item.url);
   const done = item.status === "done";
   const progress =
@@ -61,7 +64,7 @@ export function ItemCard({ item, density = "comfortable" }: { item: Item; densit
   const source = label && site && !site.endsWith(label) ? `via ${label}` : null;
   const when = done && item.finishedAt ? `finished ${ago(item.finishedAt)}` : ago(item.addedAt);
 
-  if (compact) return <CompactRow item={item} href={href} site={site} progress={progress} when={when} />;
+  if (compact) return <CompactRow item={item} href={href} external={external} site={site} progress={progress} when={when} />;
 
   return (
     <li
@@ -92,7 +95,7 @@ export function ItemCard({ item, density = "comfortable" }: { item: Item; densit
         {/* The title link covers the whole card; controls sit above it. */}
         <a
           href={href}
-          {...(isBook ? {} : { target: "_blank", rel: "noreferrer" })}
+          {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
           className={clsx(
             "mt-0.5 line-clamp-2 font-semibold leading-snug tracking-tight outline-none after:absolute after:inset-0 after:rounded-2xl focus-visible:after:ring-2 focus-visible:after:ring-accent/50 group-hover:text-accent",
             done && "text-muted",
@@ -128,7 +131,15 @@ export function ItemCard({ item, density = "comfortable" }: { item: Item; densit
 
         <div className="relative z-10 mt-3 flex items-center gap-2">
           <StatusSelect id={item.id} status={item.status} />
-          {isBook && !done && (
+          {isBook && !done && !readable && (
+            <Link
+              href={`/items/${item.id}#pdf`}
+              className="inline-flex h-7 items-center gap-1 rounded-full border border-line px-3 text-xs font-medium text-muted hover:border-accent hover:text-accent"
+            >
+              Add PDF
+            </Link>
+          )}
+          {isBook && !done && readable && (
             <Link
               href={href}
               className="inline-flex h-7 items-center gap-1 rounded-full bg-accent px-3 text-xs font-medium text-accent-ink hover:opacity-90"
@@ -197,12 +208,14 @@ function Thumb({ item, site, compact }: { item: Item; site: string | null; compa
 function CompactRow({
   item,
   href,
+  external,
   site,
   progress,
   when,
 }: {
   item: Item;
   href: string;
+  external: boolean;
   site: string | null;
   progress: number | null;
   when: string;
@@ -216,7 +229,7 @@ function CompactRow({
       <div className="min-w-0 flex-1">
         <a
           href={href}
-          {...(isBook ? {} : { target: "_blank", rel: "noreferrer" })}
+          {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
           className={clsx(
             "block truncate text-sm font-medium outline-none after:absolute after:inset-0 focus-visible:after:ring-2 focus-visible:after:ring-accent/50 group-hover:text-accent",
             done && "text-muted line-through decoration-muted/40",

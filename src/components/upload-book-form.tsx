@@ -1,17 +1,17 @@
 "use client";
 
-import { upload } from "@vercel/blob/client";
 import { clsx } from "clsx";
 import { FileUp } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { addBookAction } from "@/app/actions";
-import { makeFileKey, titleFromFilename } from "@/lib/file-key";
+import { titleFromFilename } from "@/lib/file-key";
 import { uploadCoverFromFile } from "@/lib/pdf-cover";
+import { uploadPdf } from "@/lib/upload-pdf";
 import { Spinner } from "./spinner";
 
-type Phase = "upload" | "save" | "cover";
-const PHASE_LABEL: Record<Phase, string> = { upload: "Uploading", save: "Saving", cover: "Making cover" };
+export type Phase = "upload" | "save" | "cover";
+export const PHASE_LABEL: Record<Phase, string> = { upload: "Uploading", save: "Saving", cover: "Making cover" };
 
 /** Uploads a PDF (straight to Vercel Blob, or to /api/upload locally), then creates the book. */
 export function UploadBookForm({ direct }: { direct: boolean }) {
@@ -20,26 +20,11 @@ export function UploadBookForm({ direct }: { direct: boolean }) {
   const [status, setStatus] = useState<{ phase?: Phase; progress?: number; error?: string; message?: string }>({});
   const busy = Boolean(status.phase);
 
-  async function storeFile(f: File): Promise<string> {
-    if (direct) {
-      const key = makeFileKey(f.name, crypto.randomUUID().replace(/-/g, "").slice(0, 12));
-      const blob = await upload(key, f, {
-        access: "private",
-        handleUploadUrl: "/api/upload",
-        contentType: "application/pdf",
-        multipart: f.size > 8 * 1024 * 1024,
-        onUploadProgress: ({ percentage }) => setStatus({ phase: "upload", progress: percentage }),
-      });
-      return blob.pathname;
-    }
-    return uploadLocal(f, (progress) => setStatus({ phase: "upload", progress }));
-  }
-
   async function submit(form: FormData) {
     if (!file) return;
     setStatus({ phase: "upload", progress: 0 });
     try {
-      const fileKey = await storeFile(file);
+      const fileKey = await uploadPdf(file, direct, (progress) => setStatus({ phase: "upload", progress }));
       setStatus({ phase: "save" });
       const result = await addBookAction({
         fileKey,
@@ -116,21 +101,3 @@ export function UploadBookForm({ direct }: { direct: boolean }) {
   );
 }
 
-/** Local-disk upload with progress (fetch can't report upload progress, XHR can). */
-function uploadLocal(file: File, onProgress: (percent: number) => void): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", "/api/upload");
-    xhr.responseType = "json";
-    xhr.upload.onprogress = (e) => e.lengthComputable && onProgress((e.loaded / e.total) * 100);
-    xhr.onload = () => {
-      const json = (xhr.response ?? {}) as { key?: string; error?: string };
-      if (xhr.status < 300 && json.key) resolve(json.key);
-      else reject(new Error(json.error ?? "Upload failed"));
-    };
-    xhr.onerror = () => reject(new Error("Upload failed, check your connection"));
-    const body = new FormData();
-    body.set("file", file);
-    xhr.send(body);
-  });
-}

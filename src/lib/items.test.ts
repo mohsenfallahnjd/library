@@ -129,6 +129,30 @@ describe("updateProgress", () => {
   });
 });
 
+describe("books without a PDF", () => {
+  const wanted = { kind: "book" as const, title: "Designing Data-Intensive Applications", url: "https://openlibrary.org/works/OL1W" };
+
+  it("adds a wished-for book by link, once", async () => {
+    const { item, created } = await items.addItem(wanted);
+    expect(created).toBe(true);
+    expect(item).toMatchObject({ kind: "book", fileKey: null, url: wanted.url, status: "to-read" });
+    expect((await items.addItem(wanted)).created).toBe(false);
+  });
+
+  it("needs a PDF or a link", async () => {
+    await expect(items.addItem({ kind: "book", title: "Nothing" })).rejects.toThrow(/PDF or a link/);
+  });
+
+  it("attaches a PDF later and replaces an old one", async () => {
+    const { item } = await items.addItem(wanted);
+    const withFile = await items.attachFile(item.id, "library/abc-ddia.pdf");
+    expect(withFile.fileKey).toBe("library/abc-ddia.pdf");
+    await items.attachFile(item.id, "library/def-ddia.pdf");
+    expect(removeFile).toHaveBeenCalledWith("library/abc-ddia.pdf");
+    await expect(items.attachFile(item.id, "library/x-cover.jpg")).rejects.toThrow(/file key/);
+  });
+});
+
 describe("setCover", () => {
   const jpeg = new Blob([new Uint8Array([0xff, 0xd8, 0xff])], { type: "image/jpeg" });
 

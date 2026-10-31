@@ -10,7 +10,13 @@ your stack.
 - **Feed** (home page): recent posts from Hacker News, Lobsters, dev.to and the
   TLDR Web Dev / Tech newsletters that mention your stack topics, plus every new
   post on the Next.js and Vercel blogs. Ranked by relevance, votes and freshness,
-  refreshed every few minutes. One click saves a post to the library.
+  refreshed every few minutes. Newest first, grouped by day: open a story (it is
+  marked read), tap ✓ to hide it, or save it to the library; "Mark all read"
+  clears a day, and every action can be undone. Read state syncs across devices.
+  Keys on the Mac: `j`/`k` move, `o` open, `r` read, `s` save, `u` undo.
+- **Books** (`/books`): hand-picked tech books matched to your topics and the
+  tags you save, with covers from Open Library. "Want to read" adds the book
+  to your library; attach its PDF later from the book's edit page.
 - **Library** (`/library`): everything you saved.
 - **Phone**: installable PWA, a bookmarklet, an Android share target and an iOS Shortcut.
 - **Single user**: one password, signed httpOnly cookie.
@@ -94,15 +100,18 @@ bun run dev                 # http://localhost:3000
 1. Open **Shortcuts** → **+** → name it “Save to Library”.
 2. Tap the **ⓘ** (details) button → turn on **Show in Share Sheet**. In the
    first action's “Receive … from Share Sheet”, choose **URLs** and **Safari web pages**.
-3. Add the action **Get Contents of URL**:
+3. Add **Get URLs from Input** (input: *Shortcut Input*). Safari shares a
+   "web page", not a plain link; this turns it into the URL.
+4. Add the action **Get Contents of URL**:
    - URL: `https://<your-domain>/api/items`
    - Method: **POST**
    - Headers: `Authorization` = `Bearer <your LIBRARY_API_TOKEN>`
-   - Request Body: **JSON**, add a field `url` (Text) = **Shortcut Input**
+   - Request Body: **JSON**, add a field `url` (Text) = **URLs** (from step 3)
      (optional: `kind` = `site`, `tags` = `phone, later`)
-4. Add **Get Dictionary Value** → key `title` from *Contents of URL*, then
+5. Add **Get Dictionary Value** → key `title` from *Contents of URL*, then
    **Show Notification** with that value, so you see what was saved.
-5. In Safari, tap **Share → Save to Library**.
+6. In Safari, tap **Share → Save to Library**. (Tapping ▶ in the Shortcuts
+   editor has no page to send, so the API answers "No link found".)
 
 The endpoint returns `201` with `{ id, title, url, tags, created: true }`, or `200`
 with `created: false` if the link was already saved. You can test it with:
