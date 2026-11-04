@@ -83,6 +83,7 @@ export async function saveSuggestionAction(input: { url: string; title: string; 
   await requireSession();
   try {
     const { item, created } = await addItem({ kind: "article", ...input });
+    refresh();
     return { ok: true, id: item.id, message: created ? "Saved" : "Already saved" };
   } catch (err) {
     return toResult(err);

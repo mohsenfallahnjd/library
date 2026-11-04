@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { BookActions } from "@/components/book-actions";
+import { BookShelf } from "@/components/book-shelf";
 import { suggestBooks } from "@/lib/books";
 import { getBookLinks } from "@/lib/books-links";
 import { listItems } from "@/lib/items";
 import { markedKeys } from "@/lib/marks-db";
+import { buildShelf } from "@/lib/shelf";
 import { getStackTopics } from "@/lib/stack";
 
 export const metadata: Metadata = { title: "Books" };
@@ -13,8 +15,11 @@ export const metadata: Metadata = { title: "Books" };
 export default function BooksPage() {
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="text-lg font-semibold tracking-tight">Books for your stack</h1>
+      <Suspense fallback={<Skeleton />}>
+        <MyBooks />
+      </Suspense>
+      <div className="pt-2">
+        <h2 className="text-lg font-semibold tracking-tight">Suggested for your stack</h2>
         <p className="text-sm text-muted">
           Hand-picked tech books, matched to your topics and what you save.{" "}
           <Link href="/settings#stack" className="underline decoration-line underline-offset-2 hover:text-ink">
@@ -26,6 +31,35 @@ export default function BooksPage() {
         <Suggestions />
       </Suspense>
     </div>
+  );
+}
+
+async function MyBooks() {
+  const items = await listItems({ kind: "book" });
+  const { books } = buildShelf(items);
+  const finished = items.length - books.length;
+  return (
+    <section className="space-y-2">
+      <div className="flex items-baseline justify-between">
+        <h1 className="text-lg font-semibold tracking-tight">Your books</h1>
+        {finished > 0 && (
+          <Link href="/library?status=done&kind=book" className="text-sm text-muted hover:text-ink">
+            {finished} finished →
+          </Link>
+        )}
+      </div>
+      {books.length > 0 ? (
+        <BookShelf books={books} />
+      ) : (
+        <p className="rounded-xl border border-dashed border-line p-4 text-sm text-muted">
+          No books yet. Upload a PDF in the{" "}
+          <Link href="/library" className="underline underline-offset-2">
+            Library
+          </Link>
+          , or pick one below.
+        </p>
+      )}
+    </section>
   );
 }
 

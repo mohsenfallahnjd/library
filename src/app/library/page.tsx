@@ -13,20 +13,20 @@ import { usesBlob } from "@/lib/storage";
 
 export const metadata: Metadata = { title: "Library" };
 
-type Tab = Status | "all";
+type Tab = "up-next" | "done" | "all";
 const TABS: { value: Tab; label: string }[] = [
-  { value: "reading", label: "Reading" },
-  { value: "to-read", label: "To read" },
+  { value: "up-next", label: "Up next" },
   { value: "done", label: "Done" },
   { value: "all", label: "All" },
 ];
 
 const EMPTY: Record<Tab, string> = {
-  reading: "Nothing in progress. Open something from To read.",
-  "to-read": "Your reading list is empty. Paste a link above or save one from the feed.",
+  "up-next": "Nothing waiting. Paste a link above or save one from Home.",
   done: "Nothing finished yet.",
   all: "Nothing here yet. Paste a link above.",
 };
+
+const inTab = (status: Status, tab: Tab) => tab === "all" || (tab === "done") === (status === "done");
 
 export default function LibraryPage({ searchParams }: PageProps<"/library">) {
   return (
@@ -48,11 +48,9 @@ async function Library({ searchParams }: { searchParams: PageProps<"/library">["
   const [all, jar] = await Promise.all([listItems(filter), cookies()]);
   const density: Density = jar.get("density")?.value === "compact" ? "compact" : "comfortable";
 
-  const count = (t: Tab) => (t === "all" ? all.length : all.filter((i) => i.status === t).length);
-  const requested = TABS.find((t) => t.value === one(params.status))?.value;
-  // Open on what you're reading; fall back to the reading list.
-  const tab: Tab = requested ?? (count("reading") > 0 ? "reading" : "to-read");
-  const items = tab === "all" ? all : all.filter((i) => i.status === tab);
+  const count = (t: Tab) => all.filter((i) => inTab(i.status, t)).length;
+  const tab: Tab = TABS.find((t) => t.value === one(params.status))?.value ?? "up-next";
+  const items = all.filter((i) => inTab(i.status, tab));
 
   const href = (patch: Record<string, string | undefined>) => {
     const next = new URLSearchParams();

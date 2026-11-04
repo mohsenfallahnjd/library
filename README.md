@@ -7,17 +7,18 @@ your stack.
 - **Library**: paste a URL and the title is fetched for you. Items get a status
   (to read → reading → done), tags, notes and filters by kind, status, tag and title.
 - **Books**: upload a PDF, read it in the app (PDF.js), and it opens where you stopped.
-- **Feed** (home page): recent posts from Hacker News, Lobsters, dev.to and the
+- **Home**: your unfinished books and saved articles first, then the feed.
+- **Feed** (on Home): recent posts from Hacker News, Lobsters, dev.to and the
   TLDR Web Dev / Tech newsletters that mention your stack topics, plus every new
   post on the Next.js and Vercel blogs. Ranked by relevance, votes and freshness,
   refreshed every few minutes. Newest first, grouped by day: open a story (it is
   marked read), tap ✓ to hide it, or save it to the library; "Mark all read"
   clears a day, and every action can be undone. Read state syncs across devices.
   Keys on the Mac: `j`/`k` move, `o` open, `r` read, `s` save, `u` undo.
-- **Books** (`/books`): hand-picked tech books matched to your topics and the
+- **Books** (`/books`): your books first, then hand-picked tech books matched to your topics and the
   tags you save, with covers from Open Library. "Want to read" adds the book
   to your library; attach its PDF later from the book's edit page.
-- **Library** (`/library`): everything you saved, in Reading / To read / Done
+- **Library** (`/library`): everything you saved, in Up next / Done / All
   tabs. One box searches or, when you paste a link, saves it; the PDF button
   uploads a book. Opening an article moves it to Reading; ✓ Done finishes it.
 - **Phone**: installable PWA, a bookmarklet, an Android share target and an iOS Shortcut.

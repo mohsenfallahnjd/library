@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import { Suspense } from "react";
 
 const TABS = [
-  { href: "/", label: "Feed", icon: Newspaper },
+  { href: "/", label: "Home", icon: Newspaper },
   { href: "/books", label: "Books", icon: BookMarked },
   { href: "/library", label: "Library", icon: Library },
   { href: "/settings", label: "Settings", icon: Settings },

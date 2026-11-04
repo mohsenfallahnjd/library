@@ -3,29 +3,23 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { AutoRefresh } from "@/components/auto-refresh";
+import { BookShelf } from "@/components/book-shelf";
 import { FeedList } from "@/components/feed-list";
+import { ItemCard } from "@/components/item-card";
 import { SOURCE_LABEL, type SourceId } from "@/lib/discover";
 import { getFeed } from "@/lib/discover-feed";
 import { listItems } from "@/lib/items";
 import { markedKeys } from "@/lib/marks-db";
+import { buildShelf } from "@/lib/shelf";
 import { getStackTopics } from "@/lib/stack";
 import { topicTag } from "@/lib/topics";
 import { normalizeUrl } from "@/lib/url";
 
-export const metadata: Metadata = { title: "Feed" };
+export const metadata: Metadata = { title: "Home" };
 
-export default function FeedPage({ searchParams }: PageProps<"/">) {
+export default function HomePage({ searchParams }: PageProps<"/">) {
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="text-lg font-semibold tracking-tight">Today in your stack</h1>
-        <p className="hidden text-sm text-muted sm:block">
-          Hacker News, Lobsters, dev.to and TLDR filtered to your topics, plus the Next.js and Vercel blogs.{" "}
-          <Link href="/settings#stack" className="underline decoration-line underline-offset-2 hover:text-ink">
-            Edit topics
-          </Link>
-        </p>
-      </div>
       <Suspense fallback={<FeedSkeleton />}>
         <Feed searchParams={searchParams} />
       </Suspense>
@@ -40,7 +34,7 @@ async function Feed({ searchParams }: { searchParams: PageProps<"/">["searchPara
 
   const topics = await getStackTopics();
   const [{ suggestions, fetchedAt }, items, marked] = await Promise.all([getFeed(topics), listItems(), markedKeys()]);
-  const reading = items.filter((i) => i.kind === "book" && i.status === "reading" && i.fileKey);
+  const shelf = buildShelf(items);
   const saved = new Set(items.flatMap((i) => (i.url ? [normalizeUrl(i.url)] : [])));
   // Read, hidden and saved stories are done with; the feed is what's left.
   const shown = suggestions.filter(
@@ -61,36 +55,31 @@ async function Feed({ searchParams }: { searchParams: PageProps<"/">["searchPara
 
   return (
     <div className="space-y-3">
-      {reading.length > 0 && (
-        <section aria-label="Continue reading" className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none]">
-          {reading.map((b) => {
-            const pct = b.totalPages && b.lastPage ? Math.round((b.lastPage / b.totalPages) * 100) : 0;
-            return (
-              <Link
-                key={b.id}
-                href={`/read/${b.id}`}
-                className="flex w-64 shrink-0 items-center gap-3 rounded-xl border border-line bg-surface p-2 pr-3 hover:border-accent/50"
-              >
-                {b.coverKey ? (
-                  // eslint-disable-next-line @next/next/no-img-element -- private file served by our own route
-                  <img src={`/api/files/${b.coverKey}`} alt="" className="h-12 w-9 shrink-0 rounded-sm border border-black/10 object-cover object-top" />
-                ) : (
-                  <span className="h-12 w-9 shrink-0 rounded-sm bg-accent/20" />
-                )}
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-medium">{b.title}</span>
-                  <span className="mt-1 flex items-center gap-2">
-                    <span className="h-1 flex-1 overflow-hidden rounded-full bg-line">
-                      <span className="block h-full rounded-full bg-accent" style={{ width: `${pct}%` }} />
-                    </span>
-                    <span className="font-mono text-[11px] text-muted">p.{b.lastPage ?? 1}</span>
-                  </span>
-                </span>
-              </Link>
-            );
-          })}
+      {shelf.books.length > 0 && (
+        <section className="space-y-2">
+          <SectionHeader title="Your books" count={shelf.books.length} href="/books" />
+          <BookShelf books={shelf.books} scroll />
         </section>
       )}
+      {shelf.savedCount > 0 && (
+        <section className="space-y-2">
+          <SectionHeader title="Saved to read" count={shelf.savedCount} href="/library" />
+          <ul className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface">
+            {shelf.savedPreview.map((item) => (
+              <ItemCard key={item.id} item={item} density="compact" />
+            ))}
+          </ul>
+        </section>
+      )}
+      <div className="pt-2">
+        <h1 className="text-lg font-semibold tracking-tight">New for your stack</h1>
+        <p className="hidden text-sm text-muted sm:block">
+          Hacker News, Lobsters, dev.to and TLDR filtered to your topics, plus the Next.js and Vercel blogs.{" "}
+          <Link href="/settings#stack" className="underline decoration-line underline-offset-2 hover:text-ink">
+            Edit topics
+          </Link>
+        </p>
+      </div>
       <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none]">
         <Link href={href({ source: undefined })} className={chip(!source)}>
           All sources
@@ -112,6 +101,19 @@ async function Feed({ searchParams }: { searchParams: PageProps<"/">["searchPara
       </div>
 
       <FeedList key={`${topic}-${source}`} stories={shown} savedUrls={[...saved]} live={<AutoRefresh fetchedAt={fetchedAt} />} />
+    </div>
+  );
+}
+
+function SectionHeader({ title, count, href }: { title: string; count: number; href: string }) {
+  return (
+    <div className="flex items-center justify-between">
+      <h2 className="font-semibold tracking-tight">
+        {title} <span className="font-mono text-xs font-normal text-muted">{count}</span>
+      </h2>
+      <Link href={href} className="py-1 pl-3 text-sm text-muted hover:text-ink">
+        See all →
+      </Link>
     </div>
   );
 }

@@ -165,7 +165,7 @@ export function ItemCard({ item, density = "comfortable" }: { item: Item; densit
 }
 
 /** Cover (or coloured spine) for books, the site's icon for links. */
-function Thumb({ item, site, compact }: { item: Item; site: string | null; compact: boolean }) {
+export function Thumb({ item, site, compact }: { item: Item; site: string | null; compact: boolean }) {
   if (item.kind !== "book") {
     return (
       <div
