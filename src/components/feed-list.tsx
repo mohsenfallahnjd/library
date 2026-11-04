@@ -5,6 +5,7 @@ import { BookmarkPlus, Check, CheckCheck, MessageSquare, Undo2 } from "lucide-re
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { markStoriesAction, saveSuggestionAction, unmarkStoriesAction } from "@/app/actions";
 import { SOURCE_LABEL, type SourceId, type Suggestion } from "@/lib/discover";
+import { groupByDay, sortNewest } from "@/lib/feed-order";
 import { Spinner } from "./spinner";
 
 type Sort = "new" | "top";
@@ -48,7 +49,7 @@ export function FeedList({
   const visible = useMemo(() => {
     const list = stories.filter((s) => !gone.has(s.url));
     return sort === "new"
-      ? list.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      ? sortNewest(list)
       : list.sort((a, b) => b.rank - a.rank);
   }, [stories, gone, sort]);
 
@@ -285,31 +286,6 @@ function useSortPref(): [Sort, (s: Sort) => void] {
     } catch {}
   }, []);
   return [sort, save];
-}
-
-/** Today / Yesterday / Wednesday / Oct 21, in the reader's own time zone. */
-function groupByDay(stories: Suggestion[]) {
-  const groups: { label: string; stories: Suggestion[] }[] = [];
-  const today = startOfDay(new Date());
-  for (const s of stories) {
-    const days = Math.round((today - startOfDay(new Date(s.createdAt))) / 86_400_000);
-    const label =
-      days <= 0
-        ? "Today"
-        : days === 1
-          ? "Yesterday"
-          : days < 7
-            ? new Date(s.createdAt).toLocaleDateString("en", { weekday: "long" })
-            : new Date(s.createdAt).toLocaleDateString("en", { month: "short", day: "numeric" });
-    const last = groups.at(-1);
-    if (last?.label === label) last.stories.push(s);
-    else groups.push({ label, stories: [s] });
-  }
-  return groups;
-}
-
-function startOfDay(d: Date) {
-  return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
 }
 
 function host(url: string) {

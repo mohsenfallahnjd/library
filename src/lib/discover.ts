@@ -311,7 +311,9 @@ export function rankSuggestions(raw: Raw[], topics: string[], now = Date.now()):
     if (official && !matched.includes(official.tag)) matched.unshift(official.tag);
     if (matched.length === 0) continue;
 
-    const ageDays = Math.max(0, (now - Date.parse(r.createdAt)) / DAY);
+    const published = Date.parse(r.createdAt);
+    if (Number.isNaN(published)) continue;
+    const ageDays = Math.max(0, (now - published) / DAY);
     if (ageDays > (official ? OFFICIAL_WINDOW_DAYS : WINDOW_DAYS)) continue;
     const rank =
       matched.length * 2 +
@@ -331,7 +333,7 @@ export function rankSuggestions(raw: Raw[], topics: string[], now = Date.now()):
       score: r.score,
       comments: r.comments,
       discussionUrl: r.discussionUrl,
-      createdAt: r.createdAt,
+      createdAt: new Date(published).toISOString(),
       summary: r.summary ?? null,
       readMinutes: r.readMinutes ?? null,
       topics: matched,
